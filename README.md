@@ -22,13 +22,13 @@ vari tipi di layer0 sono: <br>
 [Cosmos](https://gateway.pinata.cloud/ipfs/QmWXkzM74FCiERdZ1WrU33cqdStUK9dz1A8oEvYcnBAHeo) in cui è composta da una rete principale chiamata **cosmos hub** e da
 blockchain personalizzate chiamate **zone**
 
-**layer1**: sono blockchain che possono validare e eseguire le transazioni senza la necessità di un atra rete
+**Layer1**: sono blockchain che possono validare e eseguire le transazioni senza la necessità di un atra rete
 queste reti non hanno bisogno di una third party per le transaizoni, possono avvenire quando si ha voglia, mostrano tutte le transazioni senza rilevare chi le ha fatte
 si possono costruire applicazioni su alcuni di esse (ETH), una volta eseguite le transazioni non sono riversibili, insomma possono fare tante cosa dalla privacy/sicurezza, a movimentazione
 di soldi, a creazioni di applicazioni ecc. ma hanno uno svantaggio che sarebbe la **scalabilità** il **costo**, **token per eseguire le transazioni**.
 queste problematiche non avvengono tutte e tre su ogni layer1 per esempio su bitcoin è difficile creare applicazioni o usare altri token essendo che accetta solo BTC
 su eth il costo delle transazioni è alto e più si usa la rete e più le ffes (gas) diventano alte.  
-**layer2**: vengono utilizzate per alleggerire il crico dei layer1, arrivano in soccorso ai layer2 per sistemare il problema **blockchain trilemma**. <br>
+**Layer2**: vengono utilizzate per alleggerire il crico dei layer1, arrivano in soccorso ai layer2 per sistemare il problema **blockchain trilemma**. <br>
 **zkSync** zkSync usa la tecnologia dei Zero-Knowledge Rollup, che offre alta sicurezza grazie alla prova crittografica delle transazioni senza dover rivelare i dettagli delle stesse
 
 | Layer2      | Techology                                 | avarage TX fee         |
@@ -38,7 +38,10 @@ su eth il costo delle transazioni è alto e più si usa la rete e più le ffes (
 | Optimistic  | Optimistic Rollup & Modular OP Stack      | $0.03 USD to Send ETH  |
 | Stacks      | Hybrid Bitcoin L2 with Nakamoto Consensus | $0.20 USD to Send BTC  |
 
-**layer3**: applicazioni che si basano sulla blockchain. Giochi, Wallet, NFT, dex
+**Layer3**: applicazioni che si basano sulla blockchain. Giochi, Wallet, NFT, dex, inoltre possono migliorare anche loro la scalabilita rendendola **iper-scalabilità** <br>
+**XAI** costruita su arbitrum che permette di facilitare l'adozione di giochi sulla blockchain. <br>
+Per i Giocatori offre un'esperienza di gioco senza interruzioni dove non devono preoccuparsi di gestire crypto wallet o pagare per le transazioni all'interno del gioco.
+Per l'Ecosistema facilita la creazione di una rete di giochi interconnessi dove asset, giocatori, e comunità possono interagire in modo più fluido.
 
 
 ### perchè avere un layer2 ?
