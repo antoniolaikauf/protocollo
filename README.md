@@ -31,20 +31,71 @@ su eth il costo delle transazioni è alto e più si usa la rete e più le ffes (
 **Layer2**: vengono utilizzate per alleggerire il crico dei layer1, arrivano in soccorso ai layer2 per sistemare il problema **blockchain trilemma**. <br>
 **zkSync** zkSync usa la tecnologia dei Zero-Knowledge Rollup, che offre alta sicurezza grazie alla prova crittografica delle transazioni senza dover rivelare i dettagli delle stesse
 
-| Layer2      | Techology                                 | avarage TX fee         |
-| ----------- | ----------------------------------------- | ---------------------- |
-| base        | Optimistic Rollup using OP Stack          | $0.002 USD to Send ETH |
-| Arbitrum    | Optimistic Rollup & AnyTrust Chain        | $0.01 USD to Send ETH  |
-| Optimistic  | Optimistic Rollup & Modular OP Stack      | $0.03 USD to Send ETH  |
-| Stacks      | Hybrid Bitcoin L2 with Nakamoto Consensus | $0.20 USD to Send BTC  |
+| Layer2     | Techology                                 | avarage TX fee         |
+| ---------- | ----------------------------------------- | ---------------------- |
+| base       | Optimistic Rollup using OP Stack          | $0.002 USD to Send ETH |
+| Arbitrum   | Optimistic Rollup & AnyTrust Chain        | $0.01 USD to Send ETH  |
+| Optimistic | Optimistic Rollup & Modular OP Stack      | $0.03 USD to Send ETH  |
+| Stacks     | Hybrid Bitcoin L2 with Nakamoto Consensus | $0.20 USD to Send BTC  |
 
 **Layer3**: applicazioni che si basano sulla blockchain. Giochi, Wallet, NFT, dex, inoltre possono migliorare anche loro la scalabilita rendendola **iper-scalabilità** <br>
 **XAI** costruita su arbitrum che permette di facilitare l'adozione di giochi sulla blockchain. <br>
 Per i Giocatori offre un'esperienza di gioco senza interruzioni dove non devono preoccuparsi di gestire crypto wallet o pagare per le transazioni all'interno del gioco.
 Per l'Ecosistema facilita la creazione di una rete di giochi interconnessi dove asset, giocatori, e comunità possono interagire in modo più fluido.
 
+Alla fine le banche vengono scelte perchè te gli consegni i soldi firmi quattro fogli che non si sa cosa siano e hai finito, inoltre sono molte più intuitive rispetto
+alla blockchain che bisogna creare un wallet, non dire a nessuno la seed phrase, se la perdi ciao ciao i tuoi soldi, per prelevare servono 4 numeri, anche se tra quattro
+numeri e un address per fare una transazione non cambia molto, che dopo con i nostri soldi fanno quello che vogliono e se succede una corsa ai sportelli ci domandiamo cosa cazzo è successo è un altro conto, un altro motivo per
+il quale si sceglie ancora le banche è che la blockchain viene associata a scamm ma questo è per colpa **dell'ignoranza finanziaria**. Se io scrivessi su instagram
+investi in questo token e guadagerai 1000$ al giorno **nessuno va a vedere cosa fa quel token o le funzionalità del protocollo o il fondatore di quel token** ma
+questo non è un problema della blockchain ma **dell'istruzione**, siamo nel 2024 e come è possibile che nelle scuole non venga insegnato economia o finanzia.
+un altro problema sono i governi che sono ostili che non accettano l'innovazione. goveni abbastanza totalitari come cina, **USA** si usa con l'amministrazione biden,
+europa in cui decidono loro cosa pensano sia il bene del popolo ma in verita fanno solo il bene delle lobby non vorranno un sistema di pagamento o una tecnologia che
+non ha un punto centrale ma è decentralizzata e quindi cercheranno di rovinarla. mining in cina bandito, in america la sec che rompe le palle a tutte le aziende
+che fanno protocollo es. XRP, COINBASE, KRAKEN, europa con il mipa uscito da poco, in italia volevano fare tassa sulle cryptovalute al 46%, bisognerebbe avere gente
+non che sia giovane o vecchio o marrone ma che sia capace come **Bukele** che utilizza energia geotermica per il mining, attirando aziende e capitali cosi che sia il
+governo e le aziende ci guadagnano.
 
-### perchè avere un layer2 ?
+Questi sono i problemi principali e per risolveri bisognerebbe cambiare l'istruzione alla fine non c'erano cosi tanti corsi prima dell'avento dell'AI e ora compaiono
+come funghi.
+L'altro punto per migliorare la reputazione e l'adozione della blockchain sarebbe quella di migliorare l'interfaccia/interazione e questo possono venire in soccorso i
+layer3
 
-ci possono essere due tipi di soluzioni per migliorare la blockchain rendendola più scalabile.
-O si migliora direttamente il layer1 e quindi la blockchain o si crea direttamente protocolli in top alla blockchain per renderal più scalabile senza dover cambiare la blockchain
+# Il ruolo dei layer nella blockchain
+
+I layer 0 probabilmente non avranno un impatto significativo rispetto ai layer 1 e ai layer 2. I layer 3, invece, saranno più utilizzati poiché saranno
+loro ad attirare le persone con l’implementazione di giochi, dApp, NFT e altre funzionalità.
+Il vantaggio principale dei layer 0 è quello di consentire la comunicazione tra blockchain diverse o migliorare la scalabilità. Tuttavia, queste
+funzioni possono essere sostituite dai layer 2, rendendo i layer 0 meno centrali.
+I layer 3 sono sicuro che giocheranno un ruolo importante non solo per quanto riguarda le funzionalità, ma anche per fornire un’interazione più intuitiva tra blockchain e persone.
+
+## Problemi di adozione della blockchain
+
+Uno dei motivi per cui le banche continuano a essere preferite è la loro intuitività. Consegni i soldi, firmi quattro fogli e hai finito.
+Al contrario, con la blockchain bisogna creare un wallet, custodire la seed phrase (che se persa rende i fondi irrecuperabili) e utilizzare indirizzi lunghi per le transazioni. Anche se tecnicamente non c’è molta differenza tra
+inserire un PIN e un address, la percezione dell’utente medio è che la blockchain sia più complicata. Inoltre, molte persone associano la blockchain a truffe, ma questo è un problema legato **all’ignoranza finanziaria**.
+Ad esempio, se qualcuno su Instagram promuove un token promettendo guadagni di 1000$ al giorno, nessuno si informa sul progetto, sul team o sulle funzionalità del protocollo e le persone ci investiranno soldi senza sapere in che cosa li stanno mettendo.
+Questo non è un problema della blockchain, ma della mancanza di istruzione. Sembra assurdo che nel 2024 nelle scuole non si insegnino economia o finanza **ASSURDO**.
+
+## Ostilità dei governi
+
+Un altro ostacolo è rappresentato dai **governi**, che spesso si dimostrano ostili verso l’innovazione. Paesi con approcci autoritari o protezionistici, come la Cina (che ha bandito il mining) o gli Stati Uniti, si proprio gli **USA**
+(con l’amministrazione Biden e le azioni della SEC contro aziende come XRP, Coinbase, Kraken), frenano l’adozione. Anche l’Europa con regolamenti come MiCA e politiche fiscali aggressive (ad esempio, la proposta in Italia di tassare le criptovalute al 46%) scoraggia l’innovazione.
+Questi governi pensano che stiano proteggendo le persone ma in verità fanno solo il bene delle **lobby con poche aziende e monopoli**, piuttosto che favorire il progresso tecnologico decentralizzato. Al contrario, esempi come quello di Nayib Bukele in El Salvador, che utilizza energia
+geotermica per il mining e attrae capitali e aziende, dimostrano come sia possibile trarre vantaggio dalla blockchain sia per il governo che per le imprese.
+
+Questo grafico mostra l'energia per il mining di bitcoin e si vede che comunque anche con il picco di bitcoin ai 99.000 l'energia non ha raggiunto il picco della bullrun quando è arrivato a 68.000, questo dimostra che i miner stanno cercando soluzioni più economiche per loro e anche emno dispendiose (i bitcoin rig immersi nel liquido o anche soluzioni come bukele)
+![](energia.png)
+
+Per risolvere questi problemi, è necessario cambiare l’istruzione. Prima dell’era dell’intelligenza artificiale, i corsi sull’AI erano quasi inesistenti, e oggi sono diffusissimi. Lo stesso dovrebbe accadere per la blockchain.
+Un altro punto fondamentale è migliorare l’interfaccia e l’interazione con la blockchain. Questo è un ambito in cui i layer 3 possono dare un contributo importante, rendendo l’esperienza più intuitiva e accessibile agli utenti,
+migliorando così reputazione e adozione, perchè ho visto molte persone intervistate che dicevano che era troppo complicato
+
+Lascio a voi l'immagine di un grafico per farvi capire l'importanza e l'uso della blockchain
+![](0_yavXZlh5Q0XS0xp6.jpg)
+
+l'aumento delle transaizoni in ogni blocco
+![](transazioni_blocco.png)
+
+In cina anche se c'è il blocco il mercato delle applicazioni blockchain continua a crescere
+![](image.png)
