@@ -82,12 +82,12 @@ Questo non è un problema della blockchain, ma della mancanza di istruzione. Sem
 Un altro ostacolo è rappresentato dai **governi**, che spesso si dimostrano ostili verso l’innovazione. Paesi con approcci autoritari o protezionistici, come la Cina (che ha bandito il mining) o gli Stati Uniti, si proprio gli **USA**
 (con l’amministrazione Biden e le azioni della SEC contro aziende come XRP, Coinbase, Kraken), frenano l’adozione. Anche l’Europa con regolamenti come MiCA e politiche fiscali aggressive (ad esempio, la proposta in Italia di tassare le criptovalute al 46%) scoraggia l’innovazione.
 Questi governi pensano che stiano proteggendo le persone ma in verità fanno solo il bene delle **lobby con poche aziende e monopoli**, piuttosto che favorire il progresso tecnologico decentralizzato. Al contrario, esempi come quello di Nayib Bukele in El Salvador, che utilizza energia
-geotermica per il mining e attrae capitali e aziende, dimostrano come sia possibile trarre vantaggio dalla blockchain sia per il governo che per le imprese.
-
+geotermica per il mining e attrae capitali e aziende, dimostrano come sia possibile trarre vantaggio dalla blockchain sia per il governo che per le imprese. <br>
 Questo grafico mostra l'energia per il mining di bitcoin e si vede che comunque anche con il picco di bitcoin ai 99.000 l'energia non ha raggiunto il picco della bullrun quando è arrivato a 68.000, questo dimostra che i miner stanno cercando soluzioni più economiche per loro e anche emno dispendiose (i bitcoin rig immersi nel liquido o anche soluzioni come bukele)
 ![](energia.png)
 
-Per risolvere questi problemi, è necessario cambiare l’istruzione. Prima dell’era dell’intelligenza artificiale, i corsi sull’AI erano quasi inesistenti, e oggi sono diffusissimi. Lo stesso dovrebbe accadere per la blockchain.
+Per risolvere i problemi, **sarebbe necessario delle riforme e cambiare mentalità**. <br>
+è necessario cambiare l’istruzione. Prima dell’era dell’intelligenza artificiale, i corsi sull’AI erano quasi inesistenti, e oggi sono diffusissimi. Lo stesso dovrebbe accadere per la blockchain.
 Un altro punto fondamentale è migliorare l’interfaccia e l’interazione con la blockchain. Questo è un ambito in cui i layer 3 possono dare un contributo importante, rendendo l’esperienza più intuitiva e accessibile agli utenti,
 migliorando così reputazione e adozione, perchè ho visto molte persone intervistate che dicevano che era troppo complicato
 
