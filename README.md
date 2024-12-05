@@ -100,8 +100,6 @@ l'aumento delle transaizoni in ogni blocco
 In cina anche se c'è il blocco il mercato delle applicazioni blockchain continua a crescere
 ![](image.png)
 
-zero-knowledge technology
-
 
 ci sono due soluzioni che vorrei costruire di layer3.
 la prima è quella di un gioco penso qualcosa con un avatar o qualcosa che riguarda gli NFT ma non ho ancora idea sopratutto quello ce riguarda 
@@ -115,3 +113,9 @@ la seconda sarebbe un protocollo di scambio tra asset tra blockchain senza passa
 sporatutto permettere una interazione migliore per l'utente.
 Un estensione che si può scaricare che ti permette di scambiare token direttamente dal sito su cui ti trovi simile a metamask 
 ma al posto di essere un hot wallet permetterà di scambiare token tra blockchain 
+Permettere il trasferimento diretto di asset tra diverse blockchain senza la necessità di intermediari centralizzati o bridge che potrebbero 
+introdurre rischi di sicurezza.
+Tecnologie come IBC (Inter-Blockchain Communication) di Cosmos o Cross-Chain Communication (CCC) sono fondamentali. Questi protocolli gestiscono la 
+comunicazione sicura tramite la crittografia e la verifica tra le blockchain, accesso tramite chiave privata come metamask,
+scambio dei token in modo corretto e facile interazione per utente.
+
