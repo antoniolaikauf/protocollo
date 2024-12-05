@@ -99,3 +99,19 @@ l'aumento delle transaizoni in ogni blocco
 
 In cina anche se c'è il blocco il mercato delle applicazioni blockchain continua a crescere
 ![](image.png)
+
+zero-knowledge technology
+
+
+ci sono due soluzioni che vorrei costruire di layer3.
+la prima è quella di un gioco penso qualcosa con un avatar o qualcosa che riguarda gli NFT ma non ho ancora idea sopratutto quello ce riguarda 
+gli NFT essendo che ora non hanno ancora uno scopo definito ma sono più beni di stato (tipo gucci/suprime). 
+onestamente penso che i NFT avranno un futuro in futuro sopratutto quando il metaverso dventerà main nelle nostre vite, verranno 
+utilizzati si come biglietti a eventi, ma anche come esposizione tra fiere di arte o anche come passaporto tra aree nel metaverso,
+avere gadgets gratis o certe features come balli (es come quelli in fortnite)
+strumenti per la creazione, gestione e scambio di asset in-game, con supporto per NFTs. 
+
+la seconda sarebbe un protocollo di scambio tra asset tra blockchain senza passare da un ente centralizzato come dei cex e
+sporatutto permettere una interazione migliore per l'utente.
+Un estensione che si può scaricare che ti permette di scambiare token direttamente dal sito su cui ti trovi simile a metamask 
+ma al posto di essere un hot wallet permetterà di scambiare token tra blockchain 
