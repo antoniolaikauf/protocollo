@@ -100,22 +100,58 @@ l'aumento delle transaizoni in ogni blocco
 In cina anche se c'è il blocco il mercato delle applicazioni blockchain continua a crescere
 ![](image.png)
 
-
 ci sono due soluzioni che vorrei costruire di layer3.
-la prima è quella di un gioco penso qualcosa con un avatar o qualcosa che riguarda gli NFT ma non ho ancora idea sopratutto quello ce riguarda 
-gli NFT essendo che ora non hanno ancora uno scopo definito ma sono più beni di stato (tipo gucci/suprime). 
-onestamente penso che i NFT avranno un futuro in futuro sopratutto quando il metaverso dventerà main nelle nostre vite, verranno 
+la prima è quella di un gioco penso qualcosa con un avatar o qualcosa che riguarda gli NFT ma non ho ancora idea sopratutto quello ce riguarda
+gli NFT essendo che ora non hanno ancora uno scopo definito ma sono più beni di stato (tipo gucci/suprime).
+onestamente penso che i NFT avranno un futuro in futuro sopratutto quando il metaverso dventerà main nelle nostre vite, verranno
 utilizzati si come biglietti a eventi, ma anche come esposizione tra fiere di arte o anche come passaporto tra aree nel metaverso,
 avere gadgets gratis o certe features come balli (es come quelli in fortnite)
-strumenti per la creazione, gestione e scambio di asset in-game, con supporto per NFTs. 
+strumenti per la creazione, gestione e scambio di asset in-game, con supporto per NFTs.
 
 la seconda sarebbe un protocollo di scambio tra asset tra blockchain senza passare da un ente centralizzato come dei cex e
 sporatutto permettere una interazione migliore per l'utente.
-Un estensione che si può scaricare che ti permette di scambiare token direttamente dal sito su cui ti trovi simile a metamask 
-ma al posto di essere un hot wallet permetterà di scambiare token tra blockchain 
-Permettere il trasferimento diretto di asset tra diverse blockchain senza la necessità di intermediari centralizzati o bridge che potrebbero 
+Un estensione che si può scaricare che ti permette di scambiare token direttamente dal sito su cui ti trovi simile a metamask
+ma al posto di essere un hot wallet permetterà di scambiare token tra blockchain
+Permettere il trasferimento diretto di asset tra diverse blockchain senza la necessità di intermediari centralizzati o bridge che potrebbero
 introdurre rischi di sicurezza.
-Tecnologie come IBC (Inter-Blockchain Communication) di Cosmos o Cross-Chain Communication (CCC) sono fondamentali. Questi protocolli gestiscono la 
+Tecnologie come IBC (Inter-Blockchain Communication) di Cosmos o Cross-Chain Communication (CCC) sono fondamentali. Questi protocolli gestiscono la
 comunicazione sicura tramite la crittografia e la verifica tra le blockchain, accesso tramite chiave privata come metamask,
-scambio dei token in modo corretto e facile interazione per utente.
+scambio dei token in modo corretto e facile interazione per utente. <br>
+Questo non sarebbe proprio un protocollo ma più un estensione come metamask.
 
+
+All'inizio cercherò di implementare solo l'interazione tra la blockchain eth e quella di bitcoin
+si vedrà il saldo su essa del wallet, si firmerà la transazione 
+ci sarà un bocco dei token e la creazione di token **wrapper** nell'altra chain 
+per l'operazione di scambio tra le due blockchain uso **cross-chain**  
+
+
+
+
+ora come ora farò poco di codice e inizerò a leggere paiper 
+
+link architettura 
+
+https://arxiv.org/pdf/2403.00405 <br>
+https://ietresearch.onlinelibrary.wiley.com/doi/epdf/10.1049/blc2.12032 <br>
+https://www.sciencedirect.com/science/article/pii/S1389128622004121 <br>
+https://www.researchgate.net/publication/384828204_Blockchain_Cross-Chain_Bridge_Security_Challenges_Solutions_and_Future_Outlook
+
+link bridge ren 
+
+https://republicprotocol.github.io/whitepaper/republic-whitepaper.pdf <br>
+https://github.com/renproject/ren/wiki/
+
+link wrapping 
+
+https://www.researchgate.net/publication/357344259_Wrapping_Trust_for_Interoperability_A_Preliminary_Study_of_Wrapped_Tokens<br>
+
+
+link wanchain
+
+https://docs.wanchain.org/introduction/old-placeholder/papers-and-downloads <br>
+zero-knowledge technology
+
+link THORchain 
+
+https://github.com/thorchain/Resources/blob/master/Whitepapers/THORChain-Cryptoeconomic-Paper-May2020.pdf
