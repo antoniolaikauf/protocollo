@@ -155,3 +155,31 @@ zero-knowledge technology
 link THORchain 
 
 https://github.com/thorchain/Resources/blob/master/Whitepapers/THORChain-Cryptoeconomic-Paper-May2020.pdf
+
+
+### SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations
+
+uno dei principali problemi che leggo nel paper **SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations** è l'architettura ambigua
+che ha il bridge che porta ad exploit.
+Queste interazioni comprendono il trasferimento di beni fungibili (beni che non sono diversi tra di loro es. tutti i bitcoin avranno lo stesso prezzo non ci sarà
+un bitcoin che vale di più rispetto ad un altro) o non fungibili (beni unici come gli NFT) e il trasferimento di messaggi, tra cui: dati, chiamate di funzione e stato. <br>
+
+tre tipi di bridge:
+1. Liquidity networks
+    il token viene depositato in una pool nella chain principale e nell'altra chain si ottiene l'equivalente in una pool che si ha depositato nella pool dell'altra chain 
+2. Token bridges
+   i token vengono bloccati nulla chain e enll'altra chain si crea un token sintetico che rappresenta il token che si ha bloccato 
+3. Coordination protocols
+   si creano complesse funzionalità come condivisione di dati, chiamate di funzione ecc.
+
+quattro tipi di protocolli cross-chain
+
+1. State Validating Protocols
+2. Verifying Protocols
+3. Third-party Attestation Protocols
+4. Optimistic Protocols
+
+le mie opzioni sarebbero la 2 o la 4 essendo che la prima sarebbe meglio tra layer1 e layer2 secondo il paper invece la 3 la scarto a prescindere, invece per 
+il tipo di bridge sarebbe il token bridge. <br>
+nella 4 dovrei implementare la lorgica della finestra di tempo, il blocco dei token e il mint dei token sulla blockchain e il rilascio se
+questo vuole riconvertire i suoi token, la verifica della transazione avvenuta su bitcoin da parte di eth
