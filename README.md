@@ -1,4 +1,4 @@
-# protocollo/estensione
+# protocollo/estensione GARGANTUA 
 
 proverò a creare il mio protocollo layer2/estensione
 
@@ -159,8 +159,11 @@ https://github.com/thorchain/Resources/blob/master/Whitepapers/THORChain-Cryptoe
 
 ### SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations
 
-uno dei principali problemi che leggo nel paper **SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations** è l'architettura ambigua
-che ha il bridge che porta ad exploit.
+Uno dei principali problemi che leggo nel paper **SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations** è l'architettura ambigua
+che ha il bridge che porta ad exploit, il punto più attaccato è il **custodian** dove sono stati rubati più di un miliardo e mezzo di dollari. <br>
+Private key leak sono le cause vulnerabilità principali, specialmente quando si approva il rilascio dei fondi da una pool o un custodian, minare i nuovi fondi 
+attraverso il debt issuer o bruciarli. Un altra vulnerabilità e con il deployer il quale si può cambiare per sbaglio il pointer di uno smart contract durante
+l'aggiornamento  
 Queste interazioni comprendono il trasferimento di beni fungibili (beni che non sono diversi tra di loro es. tutti i bitcoin avranno lo stesso prezzo non ci sarà
 un bitcoin che vale di più rispetto ad un altro) o non fungibili (beni unici come gli NFT) e il trasferimento di messaggi, tra cui: dati, chiamate di funzione e stato. <br>
 
@@ -195,4 +198,11 @@ Nella figura seguente mostra i componenti che si devono sviluppare e quelli che 
 - **Debt issuer** è responsabile nel minare i **asset synthetic** sulla chain di destinazione, questa operazione può essere fatta una volta che il
 **custodian** ha bloccato gli asset, inoltre è responsabile anche per il **burn** dei **asset synthetic** quando si vuole riconvertirli 
 - **Deployer** ha il compito di aggiornatre i contratti del bridge 
-- **Watchers** componenente che controlla attività di frode 
+- **Watchers** componenente che controlla attività di frode e sostituiscono gli attester nell'architettura degli **Optimistic Protocols**
+
+
+### CONCETTI PER IMPLEMENTAZIONE E AUMENTARE LA SICUREZZA 
+- transazioni che hanno una grande quantità di soldi si può cambiare il metodo di firma rendendole **multi-signature**
+- aumentare la finestra per i **Watchers** cosi che abbiano più tempo per rilevare transazioni fraudolenti
+- un meccanismo che permette di mettere in pausa le funzionalità del bridge quando si scopre buchi nella sicurezza 
+
