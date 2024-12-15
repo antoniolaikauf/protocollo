@@ -182,4 +182,17 @@ quattro tipi di protocolli cross-chain
 le mie opzioni sarebbero la 2 o la 4 essendo che la prima sarebbe meglio tra layer1 e layer2 secondo il paper invece la 3 la scarto a prescindere, invece per 
 il tipo di bridge sarebbe il token bridge. <br>
 nella 4 dovrei implementare la lorgica della finestra di tempo, il blocco dei token e il mint dei token sulla blockchain e il rilascio se
-questo vuole riconvertire i suoi token, la verifica della transazione avvenuta su bitcoin da parte di eth
+questo vuole riconvertire i suoi token, la verifica della transazione avvenuta su bitcoin da parte di eth.
+
+
+Nella figura seguente mostra i componenti che si devono sviluppare e quelli che sono opzionali 
+![](componenti.png)
+
+- **Trust assumption** viene fornita dalla blockchain 
+- **Relayer** è un entità che fa chiamate per eseguire operazioni cross-chain sulla rispettiva blockchain 
+- **Custodian** blocca gli asset sulla blockchain prima del **mints synthetic** è il punto più soggetto agli attacchi hacker 
+- **Token interface** permette la conversione dei asset in **asset synthetic** spesso chiamato **wrap**
+- **Debt issuer** è responsabile nel minare i **asset synthetic** sulla chain di destinazione, questa operazione può essere fatta una volta che il
+**custodian** ha bloccato gli asset, inoltre è responsabile anche per il **burn** dei **asset synthetic** quando si vuole riconvertirli 
+- **Deployer** ha il compito di aggiornatre i contratti del bridge 
+- **Watchers** componenente che controlla attività di frode 
