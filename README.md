@@ -206,3 +206,11 @@ Nella figura seguente mostra i componenti che si devono sviluppare e quelli che 
 - aumentare la finestra per i **Watchers** cosi che abbiano più tempo per rilevare transazioni fraudolenti
 - un meccanismo che permette di mettere in pausa le funzionalità del bridge quando si scopre buchi nella sicurezza 
 
+
+## OBBIETTIVI FINALI 
+- permettere di trasferire da qualsiasi wallet cold, hot, wallet sui dex 
+- trasferire da e a qualsiasi rete
+- interfaccia semplice e resa automatica 
+- decentraizzare tutto, la responsabilità è dell'utente come dovrebbe essere 
+- sviluppare un metodo che permetta di passare (se vuole utente o obbligati) da chain A a chain C ma passando tramite chain B  A -> B -> C      A <- B <- C 
+
