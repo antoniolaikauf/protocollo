@@ -1,4 +1,4 @@
-# protocollo/estensione GARGANTUA 
+# protocollo/estensione GARGANTUA
 
 proverò a creare il mio protocollo layer2/estensione
 
@@ -76,6 +76,7 @@ Al contrario, con la blockchain bisogna creare un wallet, custodire la seed phra
 inserire un PIN e un address, la percezione dell’utente medio è che la blockchain sia più complicata. Inoltre, molte persone associano la blockchain a truffe, ma questo è un problema legato **all’ignoranza finanziaria**.
 Ad esempio, se qualcuno su Instagram promuove un token promettendo guadagni di 1000$ al giorno, nessuno si informa sul progetto, sul team o sulle funzionalità del protocollo e le persone ci investiranno soldi senza sapere in che cosa li stanno mettendo.
 Questo non è un problema della blockchain, ma della mancanza di istruzione. Sembra assurdo che nel 2024 nelle scuole non si insegnino economia o finanza **ASSURDO**.
+un altro problema che ha ora la blockchain è la **balkanization**. ogni blockchain oprano come se fossero all'interno di un silos senza interagire tra di loro. Questa si vede attraverso il modello di consenso(PoW, PoS), lo schema di transazioni (in bitcoin vengono salvate le transazioni e gli UTXO Unspent Transaction Output invece in eth viene salvato lo stato dell'account), e le funzionalità dei smart contract
 
 ## Ostilità dei governi
 
@@ -119,98 +120,94 @@ comunicazione sicura tramite la crittografia e la verifica tra le blockchain, ac
 scambio dei token in modo corretto e facile interazione per utente. <br>
 Questo non sarebbe proprio un protocollo ma più un estensione come metamask.
 
-
 All'inizio cercherò di implementare solo l'interazione tra la blockchain eth e quella di bitcoin
-si vedrà il saldo su essa del wallet, si firmerà la transazione 
-ci sarà un bocco dei token e la creazione di token **wrapper** nell'altra chain 
+si vedrà il saldo su essa del wallet, si firmerà la transazione
+ci sarà un blocco dei token e la creazione di token **wrapper** nell'altra chain
 per l'operazione di scambio tra le due blockchain uso **cross-chain**  
+i token bloccati dovranno errese messi in address di entità che fanno lo staking cosi che se si comportano male utilizzando i token bloccati avviene lo slashing. <br>
+o si potrebbe trovare un modo tale che i token vengono bloccati in un address e dopo il possessore dei token può fornire una prova che una rispettiva quantità appartiene a lui
+ma il problema qua è che bisognerebbe fornire una prova e due la creazione di un address, se si crea un address si sa anche la private key e quindi potrebbe usare i token bloccati . <br>
+**Si potrebbe creare un protocollo in cui ogni 10 persone si crea un address in cui vengono depositati i token e le 10 persone non hanno tutti la chiave privata ma solo un pezzo della chiave privata. <br> E poi utilizzare quel pezzo di chiave privata come prova che i suoi token appartengono a quel address**
 
+ora come ora farò poco di codice e inizerò a leggere paiper
 
-
-
-ora come ora farò poco di codice e inizerò a leggere paiper 
-
-link architettura 
+link architettura
 
 https://arxiv.org/pdf/2403.00405 <br>
 https://ietresearch.onlinelibrary.wiley.com/doi/epdf/10.1049/blc2.12032 <br>
 https://www.sciencedirect.com/science/article/pii/S1389128622004121 <br>
 https://www.researchgate.net/publication/384828204_Blockchain_Cross-Chain_Bridge_Security_Challenges_Solutions_and_Future_Outlook
 
-link bridge ren 
+link bridge ren
 
 https://republicprotocol.github.io/whitepaper/republic-whitepaper.pdf <br>
 https://github.com/renproject/ren/wiki/
 
-link wrapping 
+link wrapping
 
 https://www.researchgate.net/publication/357344259_Wrapping_Trust_for_Interoperability_A_Preliminary_Study_of_Wrapped_Tokens<br>
-
 
 link wanchain
 
 https://docs.wanchain.org/introduction/old-placeholder/papers-and-downloads <br>
 zero-knowledge technology
 
-link THORchain 
+link THORchain
 
 https://github.com/thorchain/Resources/blob/master/Whitepapers/THORChain-Cryptoeconomic-Paper-May2020.pdf
-
 
 ### SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations
 
 Uno dei principali problemi che leggo nel paper **SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations** è l'architettura ambigua
 che ha il bridge che porta ad exploit, il punto più attaccato è il **custodian** dove sono stati rubati più di un miliardo e mezzo di dollari. <br>
-Private key leak sono le cause vulnerabilità principali, specialmente quando si approva il rilascio dei fondi da una pool o un custodian, minare i nuovi fondi 
+Private key leak sono le cause vulnerabilità principali, specialmente quando si approva il rilascio dei fondi da una pool o un custodian, minare i nuovi fondi
 attraverso il debt issuer o bruciarli. Un altra vulnerabilità e con il deployer il quale si può cambiare per sbaglio il pointer di uno smart contract durante
 l'aggiornamento  
 Queste interazioni comprendono il trasferimento di beni fungibili (beni che non sono diversi tra di loro es. tutti i bitcoin avranno lo stesso prezzo non ci sarà
 un bitcoin che vale di più rispetto ad un altro) o non fungibili (beni unici come gli NFT) e il trasferimento di messaggi, tra cui: dati, chiamate di funzione e stato. <br>
 
 tre tipi di bridge:
+
 1. Liquidity networks
-    il token viene depositato in una pool nella chain principale e nell'altra chain si ottiene l'equivalente in una pool che si ha depositato nella pool dell'altra chain 
+   il token viene depositato in una pool nella chain principale e nell'altra chain si ottiene l'equivalente in una pool che si ha depositato nella pool dell'altra chain
 2. Token bridges
-   i token vengono bloccati nulla chain e enll'altra chain si crea un token sintetico che rappresenta il token che si ha bloccato 
+   i token vengono bloccati nulla chain e enll'altra chain si crea un token sintetico che rappresenta il token che si ha bloccato
 3. Coordination protocols
    si creano complesse funzionalità come condivisione di dati, chiamate di funzione ecc.
 
 quattro tipi di protocolli cross-chain
 
-1. State Validating Protocols
-2. Verifying Protocols
-3. Third-party Attestation Protocols
+1. State Validating Protocols (sidechain e relay)
+2. Verifying Protocols (HTLCs)
+3. Third-party Attestation Protocols(DPKC)
 4. Optimistic Protocols
 
-le mie opzioni sarebbero la 2 o la 4 essendo che la prima sarebbe meglio tra layer1 e layer2 secondo il paper invece la 3 la scarto a prescindere, invece per 
+le mie opzioni sarebbero la 2 o la 4 essendo che la prima sarebbe meglio tra layer1 e layer2 secondo il paper invece la 3 la scarto a prescindere, invece per
 il tipo di bridge sarebbe il token bridge. <br>
-nella 4 dovrei implementare la lorgica della finestra di tempo, il blocco dei token e il mint dei token sulla blockchain e il rilascio se
-questo vuole riconvertire i suoi token, la verifica della transazione avvenuta su bitcoin da parte di eth.
+nella 4 dovrei implementare la lorgica della finestra di tempo, il blocco dei token e il mint dei token sulla blockchain e il rilascio se questo vuole riconvertire i suoi token, la verifica della transazione avvenuta su bitcoin da parte di eth.
 
-
-Nella figura seguente mostra i componenti che si devono sviluppare e quelli che sono opzionali 
+Nella figura seguente mostra i componenti che si devono sviluppare e quelli che sono opzionali
 ![](componenti.png)
 
-- **Trust assumption** viene fornita dalla blockchain 
-- **Relayer** è un entità che fa chiamate per eseguire operazioni cross-chain sulla rispettiva blockchain 
-- **Custodian** blocca gli asset sulla blockchain prima del **mints synthetic** è il punto più soggetto agli attacchi hacker 
+- **Trust assumption** viene fornita dalla blockchain
+- **Relayer** è un entità che fa chiamate per eseguire operazioni cross-chain sulla rispettiva blockchain (questo viene fatto attraverso un protocollo es. inetr-blockchain comunication **IBS**)
+- **Custodian** blocca gli asset sulla blockchain prima del **mints synthetic** è il punto più soggetto agli attacchi hacker
 - **Token interface** permette la conversione dei asset in **asset synthetic** spesso chiamato **wrap**
 - **Debt issuer** è responsabile nel minare i **asset synthetic** sulla chain di destinazione, questa operazione può essere fatta una volta che il
-**custodian** ha bloccato gli asset, inoltre è responsabile anche per il **burn** dei **asset synthetic** quando si vuole riconvertirli 
-- **Deployer** ha il compito di aggiornatre i contratti del bridge 
+  **custodian** ha bloccato gli asset, inoltre è responsabile anche per il **burn** dei **asset synthetic** quando si vuole riconvertirli
+- **Deployer** ha il compito di aggiornatre i contratti del bridge
 - **Watchers** componenente che controlla attività di frode e sostituiscono gli attester nell'architettura degli **Optimistic Protocols**
 
+### CONCETTI PER IMPLEMENTAZIONE E AUMENTARE LA SICUREZZA
 
-### CONCETTI PER IMPLEMENTAZIONE E AUMENTARE LA SICUREZZA 
 - transazioni che hanno una grande quantità di soldi si può cambiare il metodo di firma rendendole **multi-signature**
 - aumentare la finestra per i **Watchers** cosi che abbiano più tempo per rilevare transazioni fraudolenti
-- un meccanismo che permette di mettere in pausa le funzionalità del bridge quando si scopre buchi nella sicurezza 
+- un meccanismo che permette di mettere in pausa le funzionalità del bridge quando si scopre buchi nella sicurezza
 
+## OBBIETTIVI FINALI
 
-## OBBIETTIVI FINALI 
-- permettere di trasferire da qualsiasi wallet cold, hot, wallet sui dex 
+- permettere di trasferire da qualsiasi wallet cold, hot, wallet sui dex
 - trasferire da e a qualsiasi rete
-- interfaccia semplice e resa automatica 
-- decentraizzare tutto, la responsabilità è dell'utente come dovrebbe essere 
-- sviluppare un metodo che permetta di passare (se vuole utente o obbligati) da chain A a chain C ma passando tramite chain B  A -> B -> C      A <- B <- C 
-
+- interfaccia semplice e resa automatica
+- decentraizzare tutto, la responsabilità è dell'utente come dovrebbe essere
+- sviluppare un metodo che permetta di passare (se vuole utente o obbligati) da chain A a chain C ma passando tramite chain B A -> B -> C A <- B <- C
