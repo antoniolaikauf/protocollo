@@ -2,8 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
-const bs58 = require("bs58");
-const { buffer } = require("stream/consumers");
+const bs58 = require("bs58"); // dipendenza da installare
 
 function Entopy() {
   const entropy = crypto.randomBytes(16).toString("hex");
@@ -40,8 +39,8 @@ function PBKDF2_HMAC(w) {
 }
 
 function eliptic_curve(key) {
-  const key_pair = ec.keyFromPrivate(key["private_key"]);
-  const public_key = key_pair.getPublic();
+  const key_pair = ec.keyFromPrivate(key["private_key"]); // chaive privata
+  const public_key = key_pair.getPublic(); // chiave pubblica
 
   let cordinata_x = public_key.getX().toString(16);
   let cordinata_y = public_key.getY().toString(16);
@@ -53,7 +52,7 @@ function eliptic_curve(key) {
 
   console.log("cordinata x " + cordinata_x);
   console.log("cordinata y " + cordinata_y);
-  console.log("chiave privata " + key_pair);
+  console.log("chiave privata " + key_pair.getPrivate().toString("hex"));
 
   return { chiave_pubblica_x: cordinata_x, chiave_pubblica_y: cordinata_y };
 }
