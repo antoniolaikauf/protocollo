@@ -109,38 +109,35 @@ utilizzati si come biglietti a eventi, ma anche come esposizione tra fiere di ar
 avere gadgets gratis o certe features come balli (es come quelli in fortnite)
 strumenti per la creazione, gestione e scambio di asset in-game, con supporto per NFTs.
 
-la seconda sarebbe un protocollo di scambio tra asset tra blockchain senza passare da un ente centralizzato come dei cex e
-sporatutto permettere una interazione migliore per l'utente.
-Un estensione che si può scaricare che ti permette di scambiare token direttamente dal sito su cui ti trovi simile a metamask
+La seconda soluzione è un protocollo per lo scambio di asset tra diverse blockchain, senza la necessità di un ente centralizzato, come avviene con i CEX (exchange centralizzati). L'idea è di migliorare significativamente l'esperienza utente, offrendo una soluzione che consenta il trasferimento e lo scambio diretto tra blockchain in modo semplice e sicuro.
+Un estensione che scaricabile che ti permette di scambiare token direttamente dal sito su cui ti trovi simile a metamask
 ma al posto di essere un hot wallet permetterà di scambiare token tra blockchain
-Permettere il trasferimento diretto di asset tra diverse blockchain senza la necessità di intermediari centralizzati o bridge che potrebbero
+Permettere il trasferimento diretto di asset tra diverse blockchain senza la necessità di intermediari centralizzati o bridge centralizzati che potrebbero
 introdurre rischi di sicurezza.
 Tecnologie come IBC (Inter-Blockchain Communication) di Cosmos o Cross-Chain Communication (CCC) sono fondamentali. Questi protocolli gestiscono la
 comunicazione sicura tramite la crittografia e la verifica tra le blockchain, accesso tramite chiave privata come metamask,
 scambio dei token in modo corretto e facile interazione per utente. <br>
-Questo non sarebbe proprio un protocollo ma più un estensione come metamask.
+In sostanza, questa non sarebbe un protocollo standalone, ma piuttosto un'estensione simile a MetaMask, progettata specificamente per facilitare lo scambio cross-chain.
 
-All'inizio cercherò di implementare solo l'interazione tra la blockchain eth e quella di bitcoin
-si vedrà il saldo su essa del wallet, si firmerà la transazione
-ci sarà un blocco dei token e la creazione di token **wrapper** nell'altra chain
-per l'operazione di scambio tra le due blockchain uso **cross-chain**  
-i token bloccati dovranno errese messi in address di entità che fanno lo staking cosi che se si comportano male utilizzando i token bloccati avviene lo slashing.
-Quelli che metterranno in staking guadagneranno tramite le fee. Si aggiungerà una somma oltre a quella che vanno gia ai mainers.
-Le persone che vorranno mettere in staking i token per fare da address a toke bloccati, prima dovranno bloccare tot soldi che va in base a quanti soldi l'address dei token bloccati manterrà 
-se io blocco 200000$ allora l'address che io riceverò potra contenere massimo 200000$ di token bloccati e dovra essere di un unico token cosi che chi detiene i token bloccati non si comporta male. <br>
-Se i token bloccati sono uguali o minore rispetto a quelli messi in staking la persona non si comporterà mai male essendo che non ci guadagna nulla. <br>
-Se la persona che ha in staking i suoi token si comporta male (non restituisce correttamente i soldi ) allora avverrà lo **slashing** <br>
-Se la persona che mette in staking i soldi decide di togliere tutto dallo staking e smettere allora dovrà aspettare tot tempo cosi che gli account che hanno 
-bloccato i soldi verranno avvisati e potranno ritirare i loro soldi, se non vengono ritirati entro la finestra di tempo allora rischiano di perdere i loro soldi che sono ancora bloccati. <br>
-<br> <br> 
-**(Per futuro )** Visto che bisognerebbe mettere in staking dei token e non ho intenzione di creare un token si potrebbe fare un protocollo **MPos** in cui si possono mettere in staking più token ma si verrà pagati solo tramite le fee senza il mint di token del protocollo. 
+All'inizio cercherò di implementare solo l'interazione tra la blockchain di Ethereum e quella di Bitcoin. Si potrà visualizzare il saldo del wallet su ciascuna di esse, firmare transazioni, bloccare token e creare token wrapper nell'altra chain. Per l'operazione di scambio tra le due blockchain utilizzerò cross-chain.
+I token bloccati dovranno essere depositati in address controllati da entità che fanno staking. Se queste entità si comportano in modo scorretto utilizzando i token bloccati, si attiverà un meccanismo di slashing. Coloro che metteranno in staking i token guadagneranno tramite le fee, a cui si aggiungerà una somma extra rispetto a quella destinata ai miner.
+Le persone che desiderano mettere in staking i token per fare da address ai token bloccati dovranno prima bloccare una quantità di denaro proporzionata al valore massimo che l'address potrà contenere. Ad esempio, se una persona blocca 200.000$, l'address assegnato potrà contenere al massimo 200.000$ di token bloccati. Inoltre, ogni address sarà legato a un unico tipo di token, così da evitare comportamenti scorretti da parte di chi gestisce i token bloccati.
+Se i token bloccati sono pari o inferiori al valore dei token messi in staking, la persona che gestisce l'address non avrà incentivi a comportarsi in modo scorretto, poiché non ci sarebbe alcun guadagno. Tuttavia, se la persona si comporta in modo scorretto (ad esempio, non restituendo correttamente i fondi), il sistema applicherà lo slashing ai token in staking.
+Se chi ha messo i propri soldi in staking decide di ritirarli e smettere di partecipare, dovrà attendere un periodo di tempo prestabilito. Durante questa finestra, gli utenti che hanno bloccato i loro soldi nell'address verranno avvisati e potranno ritirarli. Tuttavia, se non li ritirano entro il termine stabilito, rischiano di perdere i loro fondi ancora bloccati.
+
+<br>
+<br> <br>
+
+**(Per futuro )** L'idea è creare un protocollo basato su staking di più token (multi-token staking), in cui gli utenti possono depositare token diversi e ricevere ricompense esclusivamente attraverso le fee generate dal protocollo, senza l'emissione di nuovi token.
 
 ![](formula_staking.png)
 
 in cui X è il prezzo dei token e p è la loro quantità.<br> <br>
-O si potrebbe trovare un modo tale che i token vengono bloccati in un address e dopo il possessore dei token può fornire una prova che una rispettiva quantità appartiene a lui
-ma il problema qua è che bisognerebbe fornire una prova e due la creazione di un address, se si crea un address si sa anche la private key e quindi potrebbe usare i token bloccati . <br>
-**Si potrebbe creare un protocollo in cui ogni 10 persone si crea un address in cui vengono depositati i token e le 10 persone non hanno tutti la chiave privata ma solo un pezzo della chiave privata. <br> E poi utilizzare quel pezzo di chiave privata come prova che i suoi token appartengono a quel address**
+In alternativa, si possono bloccare i token in un address, e i proprietari forniscono una prova che una certa quantità appartiene a loro.
+Il problema principale è come garantire che la prova sia sicura senza rivelare le chiavi private?
+La risposta sarebbe la **crittografia**. <br>
+Un altro problema sarebbe la generazione dell'address. Se il protocollo crea un address unico, potrebbe conoscere la chiave privata, rischiando di compromettere la sicurezza.. <br>
+la risposta sarebbe nel **dividere la chiave privata**. Ogni partecipante detiene solo un frammento della chiave privata, che può essere utilizzato come prova della proprietà dei token bloccati.
 
 ora come ora farò poco di codice e inizerò a leggere paiper
 
@@ -171,25 +168,22 @@ https://github.com/thorchain/Resources/blob/master/Whitepapers/THORChain-Cryptoe
 
 ### SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations
 
-Uno dei principali problemi che leggo nel paper **SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations** è l'architettura ambigua
-che ha il bridge che porta ad exploit, il punto più attaccato è il **custodian** dove sono stati rubati più di un miliardo e mezzo di dollari. <br>
-Private key leak sono le cause vulnerabilità principali, specialmente quando si approva il rilascio dei fondi da una pool o un custodian, minare i nuovi fondi
+Uno dei principali problemi evidenziati nel paper **SoK: Cross-Chain Bridging Architectural Design Flaws and Mitigations** è l'architettura ambigua dei bridge, che può portare a exploit significativi. Un punto critico è rappresentato dal custodian, dove sono stati rubati oltre un miliardo e mezzo di dollari.
+Private key è la vulnerabilità principali, specialmente quando si approva il rilascio dei fondi da una pool o un custodian, minare i nuovi fondi
 attraverso il debt issuer o bruciarli. Un altra vulnerabilità e con il deployer il quale si può cambiare per sbaglio il pointer di uno smart contract durante
-l'aggiornamento  
-Queste interazioni comprendono il trasferimento di beni fungibili (beni che non sono diversi tra di loro es. tutti i bitcoin avranno lo stesso prezzo non ci sarà
-un bitcoin che vale di più rispetto ad un altro) o non fungibili (beni unici come gli NFT) e il trasferimento di messaggi, tra cui: dati, chiamate di funzione e stato. <br>
+l'aggiornamento
 
-tre tipi di bridge:
+Quattro tipi di bridge:
 
 1. Liquidity networks
-   il token viene depositato in una pool nella chain principale e nell'altra chain si ottiene l'equivalente in una pool che si ha depositato nella pool dell'altra chain
+   In questo modello, **il token viene depositato in una pool sulla chain principale**. In cambio, **si ottiene l'equivalente nella pool della chain secondaria**. Questo approccio consente di mantenere la liquidità tra le due blockchain senza necessità di scambi diretti.
 2. Token bridges
-   i token vengono bloccati nulla chain e enll'altra chain si crea un token sintetico che rappresenta il token che si ha bloccato
+   Qui, i token vengono bloccati sulla chain di origine e, sulla chain di destinazione, viene creato un token sintetico che rappresenta i token bloccati. Questo metodo è spesso utilizzato per garantire che il valore rimanga equivalente tra le due catene.
 3. Coordination protocols
-   si creano complesse funzionalità come condivisione di dati, chiamate di funzione ecc.
+   Questi protocolli abilitano funzionalità complesse come la condivisione di dati e chiamate di funzione tra diverse blockchain. Sono fondamentali per applicazioni che richiedono interazioni più elaborate oltre il semplice trasferimento di token.
 4. hub-parachain
-   questa architettura si ha in consoms e polkadot in cui c'è un hub e tutte le parachain o zone comunicano con l'hub. questi hanno la stessa architettura e comunicano molto facilemnte. <br>
-   se si volesse comunicare con blockchain che non hanno la stessa architettura allora bisogna affidarsi a moduli speciali 
+   Questa architettura è presente in sistemi come Cosmos e Polkadot, in cui è presente un hub e tutte le parachain(polkadot) e zone(cosmos) comunicano con l'hub. questi hanno la stessa architettura e comunicano molto facilemnte. <br>
+   se si volesse comunicare con blockchain che non hanno la stessa architettura allora bisogna affidarsi a moduli speciali
 
    ![](parachain.png)
 
@@ -202,7 +196,7 @@ quattro tipi di protocolli cross-chain
 
 le mie opzioni sarebbero la 2 o la 4 essendo che la prima sarebbe meglio tra layer1 e layer2 secondo il paper invece la 3 la scarto a prescindere, invece per
 il tipo di bridge sarebbe il token bridge. <br>
-nella 4 dovrei implementare la lorgica della finestra di tempo, il blocco dei token e il mint dei token sulla blockchain e il rilascio se questo vuole riconvertire i suoi token, la verifica della transazione avvenuta su bitcoin da parte di eth.
+Nella 4 dovrei implementare la logica della finestra di tempo, il blocco dei token e il mint dei token sulla blockchain, il rilascio se la persona vuole riconvertire i suoi token e la verifica della transazione avvenuta su bitcoin da parte di eth.
 
 Nella figura seguente mostra i componenti che si devono sviluppare e quelli che sono opzionali
 ![](componenti.png)
