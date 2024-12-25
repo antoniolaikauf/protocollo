@@ -40,7 +40,6 @@ function PBKDF2_HMAC(w) {
 }
 
 function eliptic_curve(key) {
-
   const key_pair = ec.keyFromPrivate(key["private_key"]);
   const public_key = key_pair.getPublic();
 
@@ -54,6 +53,7 @@ function eliptic_curve(key) {
 
   console.log("cordinata x " + cordinata_x);
   console.log("cordinata y " + cordinata_y);
+  console.log("chiave privata " + key_pair);
 
   return { chiave_pubblica_x: cordinata_x, chiave_pubblica_y: cordinata_y };
 }
@@ -65,9 +65,9 @@ function duble_hash(pk) {
 }
 
 function build_address(data) {
-  payload = "00" + data;
-  const first_hash = crypto.createHash("sha256").update(payload).digest("hex");
-  const second_hash = crypto.createHash("sha256").update(first_hash).digest("hex").slice(0, 8);
+  const payload = "00" + data;
+  const first_hash = crypto.createHash("sha256").update(Buffer.from(payload, "hex")).digest("hex");
+  const second_hash = crypto.createHash("sha256").update(Buffer.from(first_hash, "hex")).digest("hex").slice(0, 8);
 
   const fullPayload = payload + second_hash;
   console.log("sono payload lunghezza " + fullPayload.length + " sono payload " + fullPayload);
