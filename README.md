@@ -76,7 +76,7 @@ Al contrario, con la blockchain bisogna creare un wallet, custodire la seed phra
 inserire un PIN e un address, la percezione dell’utente medio è che la blockchain sia più complicata. Inoltre, molte persone associano la blockchain a truffe, ma questo è un problema legato **all’ignoranza finanziaria**.
 Ad esempio, se qualcuno su Instagram promuove un token promettendo guadagni di 1000$ al giorno, nessuno si informa sul progetto, sul team o sulle funzionalità del protocollo e le persone ci investiranno soldi senza sapere in che cosa li stanno mettendo.
 Questo non è un problema della blockchain, ma della mancanza di istruzione. Sembra assurdo che nel 2024 nelle scuole non si insegnino economia o finanza **ASSURDO**.
-un altro problema che ha ora la blockchain è la **balkanization**. ogni blockchain oprano come se fossero all'interno di un silos senza interagire tra di loro. Questa si vede attraverso il modello di consenso(PoW, PoS), lo schema di transazioni (in bitcoin vengono salvate le transazioni e gli UTXO Unspent Transaction Output invece in eth viene salvato lo stato dell'account), e le funzionalità dei smart contract
+un altro problema che ha ora la blockchain è la **balkanization**. ogni blockchain operano come se fossero all'interno di un silos senza interagire tra di loro. Questa si vede attraverso il modello di consenso(PoW, PoS), lo schema di transazioni (in bitcoin vengono salvate le transazioni e gli UTXO Unspent Transaction Output invece in eth viene salvato lo stato dell'account), e le funzionalità dei smart contract
 
 ## Ostilità dei governi
 
@@ -207,25 +207,24 @@ nella 4 dovrei implementare la lorgica della finestra di tempo, il blocco dei to
 Nella figura seguente mostra i componenti che si devono sviluppare e quelli che sono opzionali
 ![](componenti.png)
 
-- **Trust assumption** viene fornita dalla blockchain
-- **Relayer** è un entità che fa chiamate per eseguire operazioni cross-chain sulla rispettiva blockchain (questo viene fatto attraverso un protocollo es. inetr-blockchain comunication **IBS**)
-- **Custodian** blocca gli asset sulla blockchain prima del **mints synthetic** è il punto più soggetto agli attacchi hacker
-- **Token interface** permette la conversione dei asset in **asset synthetic** spesso chiamato **wrap**
-- **Debt issuer** è responsabile nel minare i **asset synthetic** sulla chain di destinazione, questa operazione può essere fatta una volta che il
-  **custodian** ha bloccato gli asset, inoltre è responsabile anche per il **burn** dei **asset synthetic** quando si vuole riconvertirli
-- **Deployer** ha il compito di aggiornatre i contratti del bridge
-- **Watchers** componenente che controlla attività di frode e sostituiscono gli attester nell'architettura degli **Optimistic Protocols**
+- **Trust Assumption**: La blockchain fornisce un modello di fiducia che consente alle parti coinvolte di interagire senza necessità di un intermediario centrale.
+- **Relayer**: Questa entità esegue chiamate per operazioni cross-chain, utilizzando protocolli come l'Inter-Blockchain Communication (IBC) per trasmettere informazioni tra diverse blockchain.
+- **Custodian**: Funziona bloccando gli asset sulla blockchain prima della creazione di asset sintetici. Questo componente è particolarmente vulnerabile agli attacchi informatici.
+- **Token Interface**: Consente la conversione degli asset in asset sintetici, comunemente noti come "wrapped assets".
+- **Debt Issue**r: Responsabile della creazione di asset sintetici sulla blockchain di destinazione. Questa operazione avviene solo dopo che il custodian ha bloccato gli asset. Inoltre, il debt issuer gestisce anche il processo di "burn" degli asset sintetici quando si desidera riconvertirli.
+- **Deployer**: Si occupa dell'aggiornamento dei contratti del bridge, garantendo che siano sempre allineati con le ultime esigenze e standard di sicurezza.
+- **Watchers**: Questi componenti monitorano le attività fraudolente e sostituiscono gli attester nell'architettura degli Optimistic Protocols, contribuendo a mantenere l'integrità delle transazioni.
 
 ### CONCETTI PER IMPLEMENTAZIONE E AUMENTARE LA SICUREZZA
 
-- transazioni che hanno una grande quantità di soldi si può cambiare il metodo di firma rendendole **multi-signature**
-- aumentare la finestra per i **Watchers** cosi che abbiano più tempo per rilevare transazioni fraudolenti
-- un meccanismo che permette di mettere in pausa le funzionalità del bridge quando si scopre buchi nella sicurezza
+**Multi-Signature**: Per transazioni che coinvolgono grandi somme di denaro, è possibile implementare metodi di firma multi-firma, aumentando così la sicurezza delle operazioni.
+**Finestra per i Watchers**: Estendere il tempo a disposizione dei watchers per rilevare transazioni fraudolente può contribuire a prevenire attività malevole.
+**Meccanismo di Pausa**: Implementare un sistema che consenta di mettere in pausa le funzionalità del bridge in caso di vulnerabilità scoperte può proteggere gli asset durante situazioni critiche.
 
 ## OBBIETTIVI FINALI
 
-- permettere di trasferire da qualsiasi wallet cold, hot, wallet sui dex
-- trasferire da e a qualsiasi rete
-- interfaccia semplice e resa automatica
-- decentraizzare tutto, la responsabilità è dell'utente come dovrebbe essere
-- sviluppare un metodo che permetta di passare (se vuole utente o obbligati) da chain A a chain C ma passando tramite chain B A -> B -> C A <- B <- C
+- Permettere trasferimenti da qualsiasi wallet (cold, hot, wallet sui DEX).
+- Facilitare trasferimenti da e verso qualsiasi rete.
+- Offrire un'interfaccia semplice e automatizzata.
+- Decentralizzare completamente il sistema, ponendo la responsabilità sugli utenti.
+- Sviluppare un metodo che consenta il passaggio da una chain A a una chain C tramite una chain B (A → B → C e viceversa), mantenendo la stessa struttura e integrità delle informazioni.
