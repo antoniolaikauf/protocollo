@@ -124,8 +124,21 @@ All'inizio cercherò di implementare solo l'interazione tra la blockchain eth e 
 si vedrà il saldo su essa del wallet, si firmerà la transazione
 ci sarà un blocco dei token e la creazione di token **wrapper** nell'altra chain
 per l'operazione di scambio tra le due blockchain uso **cross-chain**  
-i token bloccati dovranno errese messi in address di entità che fanno lo staking cosi che se si comportano male utilizzando i token bloccati avviene lo slashing. <br>
-o si potrebbe trovare un modo tale che i token vengono bloccati in un address e dopo il possessore dei token può fornire una prova che una rispettiva quantità appartiene a lui
+i token bloccati dovranno errese messi in address di entità che fanno lo staking cosi che se si comportano male utilizzando i token bloccati avviene lo slashing.
+Quelli che metterranno in staking guadagneranno tramite le fee. Si aggiungerà una somma oltre a quella che vanno gia ai mainers.
+Le persone che vorranno mettere in staking i token per fare da address a toke bloccati, prima dovranno bloccare tot soldi che va in base a quanti soldi l'address dei token bloccati manterrà 
+se io blocco 200000$ allora l'address che io riceverò potra contenere massimo 200000$ di token bloccati e dovra essere di un unico token cosi che chi detiene i token bloccati non si comporta male. <br>
+Se i token bloccati sono uguali o minore rispetto a quelli messi in staking la persona non si comporterà mai male essendo che non ci guadagna nulla. <br>
+Se la persona che ha in staking i suoi token si comporta male (non restituisce correttamente i soldi ) allora avverrà lo **slashing** <br>
+Se la persona che mette in staking i soldi decide di togliere tutto dallo staking e smettere allora dovrà aspettare tot tempo cosi che gli account che hanno 
+bloccato i soldi verranno avvisati e potranno ritirare i loro soldi, se non vengono ritirati entro la finestra di tempo allora rischiano di perdere i loro soldi che sono ancora bloccati. <br>
+<br> <br> 
+**(Per futuro )** Visto che bisognerebbe mettere in staking dei token e non ho intenzione di creare un token si potrebbe fare un protocollo **MPos** in cui si possono mettere in staking più token ma si verrà pagati solo tramite le fee senza il mint di token del protocollo. 
+
+![](formula_staking.png)
+
+in cui X è il prezzo dei token e p è la loro quantità.<br> <br>
+O si potrebbe trovare un modo tale che i token vengono bloccati in un address e dopo il possessore dei token può fornire una prova che una rispettiva quantità appartiene a lui
 ma il problema qua è che bisognerebbe fornire una prova e due la creazione di un address, se si crea un address si sa anche la private key e quindi potrebbe usare i token bloccati . <br>
 **Si potrebbe creare un protocollo in cui ogni 10 persone si crea un address in cui vengono depositati i token e le 10 persone non hanno tutti la chiave privata ma solo un pezzo della chiave privata. <br> E poi utilizzare quel pezzo di chiave privata come prova che i suoi token appartengono a quel address**
 
@@ -174,6 +187,11 @@ tre tipi di bridge:
    i token vengono bloccati nulla chain e enll'altra chain si crea un token sintetico che rappresenta il token che si ha bloccato
 3. Coordination protocols
    si creano complesse funzionalità come condivisione di dati, chiamate di funzione ecc.
+4. hub-parachain
+   questa architettura si ha in consoms e polkadot in cui c'è un hub e tutte le parachain o zone comunicano con l'hub. questi hanno la stessa architettura e comunicano molto facilemnte. <br>
+   se si volesse comunicare con blockchain che non hanno la stessa architettura allora bisogna affidarsi a moduli speciali 
+
+   ![](parachain.png)
 
 quattro tipi di protocolli cross-chain
 
