@@ -38,13 +38,35 @@ function PBKDF2_HMAC(w) {
   return { private_key: private_key, main_chain: main_chain };
 }
 
+function eliptic_curve(key) {
+  const key_pair = ec.keyFromPrivate(key["private_key"]);
+  const public_key = JSON.parse(JSON.stringify(key_pair.getPublic()));
+  console.log(public_key);
+
+  let cordinata_x = public_key[0];
+  let cordinata_y = public_key[1];
+  let prefisso = "";
+  if (parseInt(cordinata_y[cordinata_y.length - 1], 16) % 2 == 0) prefisso = "02";
+  else prefisso = "03";
+  cordinata_x = prefisso + cordinata_x;
+  cordinata_y = prefisso + cordinata_y;
+
+  return { "chiave pubblica": cordinata_x, "chiave privata": cordinata_y };
+}
+
+function duble_hash(pk) {
+  const f
+}
+
 async function main() {
   const bits_entropy = Entopy();
   const checksum = crypto.createHash("sha256").update(bits_entropy).digest("hex").slice(0, 1);
   const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
   const list_words = await words(bits_checksum);
   const key = PBKDF2_HMAC(list_words);
-  console.log(key);
+  const key_pair = eliptic_curve(key) 
+  console.log(duble_hash(key_pair));
+  
 }
 
 main();
