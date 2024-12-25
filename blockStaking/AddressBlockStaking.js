@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
+const bs58 = require("bs58");
 
 function Entopy() {
   const entropy = crypto.randomBytes(16).toString("hex");
@@ -41,21 +42,32 @@ function PBKDF2_HMAC(w) {
 function eliptic_curve(key) {
   const key_pair = ec.keyFromPrivate(key["private_key"]);
   const public_key = JSON.parse(JSON.stringify(key_pair.getPublic()));
-  console.log(public_key);
 
   let cordinata_x = public_key[0];
   let cordinata_y = public_key[1];
   let prefisso = "";
-  if (parseInt(cordinata_y[cordinata_y.length - 1], 16) % 2 == 0) prefisso = "02";
-  else prefisso = "03";
+
+  parseInt(cordinata_y[cordinata_y.length - 1], 16) % 2 == 0 ? (prefisso = "02") : (prefisso = "03");
   cordinata_x = prefisso + cordinata_x;
   cordinata_y = prefisso + cordinata_y;
 
-  return { "chiave pubblica": cordinata_x, "chiave privata": cordinata_y };
+  return { chiave_pubblica: cordinata_x, chiave_privata: cordinata_y };
 }
 
 function duble_hash(pk) {
-  const f
+  const fisrt_hash = crypto.createHash("sha256").update(pk.chiave_pubblica).digest("hex");
+  const second_hash = crypto.createHash("ripemd160").update(fisrt_hash).digest("hex");
+  return second_hash;
+}
+
+function build_address(data) {
+  const version = "00";
+  let payload = version + data;
+  const public_key_hash = crypto.createHash("sha256").update(payload).digest("hex");
+  const checksum = public_key_hash.slice(0, 8);
+  payload += checksum;
+  const address = bs58.default.encode(Buffer.from(payload, "utf-8"));
+  return address;
 }
 
 async function main() {
@@ -64,9 +76,9 @@ async function main() {
   const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
   const list_words = await words(bits_checksum);
   const key = PBKDF2_HMAC(list_words);
-  const key_pair = eliptic_curve(key) 
-  console.log(duble_hash(key_pair));
-  
+  const key_pair = eliptic_curve(key);
+  const d_hash = duble_hash(key_pair);
+  console.log(build_address(d_hash));
 }
 
 main();
