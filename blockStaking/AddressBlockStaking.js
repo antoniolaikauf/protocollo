@@ -1,5 +1,7 @@
 const crypto = require("crypto");
 const fs = require("fs").promises;
+const EC = require("elliptic").ec; // dipendenza da installare
+const ec = new EC("secp256k1");
 
 function Entopy() {
   const entropy = crypto.randomBytes(16).toString("hex");
@@ -24,11 +26,25 @@ async function words(bits) {
   return list_words;
 }
 
+function PBKDF2_HMAC(w) {
+  let word = "";
+  w.forEach((element) => {
+    word += element;
+  });
+  const key = crypto.pbkdf2Sync(word, "mnemonic", 2048, 64, "sha512");
+  const hmac = crypto.createHmac("sha512", "Bitcoin seed").update(key).digest("hex");
+  const private_key = hmac.slice(0, 64);
+  const main_chain = hmac.slice(64);
+  return { private_key: private_key, main_chain: main_chain };
+}
+
 async function main() {
   const bits_entropy = Entopy();
   const checksum = crypto.createHash("sha256").update(bits_entropy).digest("hex").slice(0, 1);
   const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
-  console.log(await words(bits_checksum));
+  const list_words = await words(bits_checksum);
+  const key = PBKDF2_HMAC(list_words);
+  console.log(key);
 }
 
 main();
