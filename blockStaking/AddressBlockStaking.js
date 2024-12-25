@@ -29,20 +29,18 @@ async function words(bits) {
 }
 
 function PBKDF2_HMAC(w) {
-  const parole = " setola bulbo curvo malto totano pomice srotolato sbancato retina affabile salivare fiore"; // mnemonic
   const key = crypto.pbkdf2Sync(w, "mnemonic", 2048, 64, "sha512");
-  // console.log(key.toString("hex") + "ssss");
 
   const hmac = crypto.pbkdf2Sync(key, "Bitcoin seed", 1, 64, "sha512");
-  // console.log(hmac.toString("hex") + " fffffffffffffffffffffff");
 
-  const private_key = hmac.slice(0, 32);
-  const main_chain = hmac.slice(32);
+  const private_key = hmac.toString("hex").slice(0, 64);
+  const main_chain = hmac.toString("hex").slice(64);
 
-  return { private_key: private_key.toString("hex"), main_chain: main_chain.toString("hex") };
+  return { private_key: private_key, main_chain: main_chain };
 }
 
 function eliptic_curve(key) {
+
   const key_pair = ec.keyFromPrivate(key["private_key"]);
   const public_key = key_pair.getPublic();
 
@@ -68,20 +66,13 @@ function duble_hash(pk) {
 
 function build_address(data) {
   payload = "00" + data;
-  console.log(payload.length);
-  // const version = Buffer.from("00", "hex");
-  // data = Buffer.from(data, "hex");
-  // let payload = Buffer.concat([version, data]);
   const first_hash = crypto.createHash("sha256").update(payload).digest("hex");
   const second_hash = crypto.createHash("sha256").update(first_hash).digest("hex").slice(0, 8);
 
   const fullPayload = payload + second_hash;
-  // const fullPayload = Buffer.concat([payload, Buffer.from(second_hash)]);
   console.log("sono payload lunghezza " + fullPayload.length + " sono payload " + fullPayload);
 
   const address = bs58.default.encode(Buffer.from(fullPayload, "hex"));
-  console.log(address);
-
   return address;
 }
 
@@ -95,8 +86,7 @@ async function main() {
   const key = PBKDF2_HMAC(list_words);
   const key_pair = eliptic_curve(key);
   const d_hash = duble_hash(key_pair);
-  console.log("sono address " + build_address(d_hash).length);
-  console.log("00d295fe2cb5e35dc3b65684fa0cfb6c5fac84ff423aaa0de3".length);
+  console.log("sono address " + build_address(d_hash));
 }
 
 main();
