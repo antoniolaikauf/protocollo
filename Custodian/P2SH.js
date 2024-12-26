@@ -1,11 +1,6 @@
 const crypto = require("crypto");
 const bs58 = require("bs58"); // dipendenza da installare
-
-/*
-// const bitcoin = require("bitcoinjs-lib"); // dipendenza npm install bitcoinjs-lib per instllarlo
-// const fs = require("fs").promises;
-// const EC = require("elliptic").ec; // dipendenza da installare
-// const ec = new EC("secp256k1");
+const fs = require("fs").promises;
 
 function Entopy() {
   const entropy = crypto.randomBytes(16).toString("hex");
@@ -24,11 +19,22 @@ async function words(bits) {
   for (let i = 0; i < bits.length; i += 11) {
     const chunk = bits.slice(i, i + 11);
     const number = parseInt(chunk, 2).toString(10);
-    list_words += " " + element[number].replace("\r", "");
+    
+    i == 0 ? (list_words += element[number].replace("\r", "")) : (list_words += " " + element[number].replace("\r", ""));
   }
 
   return list_words;
 }
+/*
+
+CODICE SBAGLIATO ESSENDO CHE SI USA UN ADDRESS DI TIPO P2HS PER FARE CONDIZIONI 
+E NON SERVE UNA PERSONA CHE FACCIA DA COLLATERALE E QUINDI QUESTO è SBAGLIATO 
+
+// const bitcoin = require("bitcoinjs-lib"); // dipendenza npm install bitcoinjs-lib per instllarlo
+// const EC = require("elliptic").ec; // dipendenza da installare
+// const ec = new EC("secp256k1");
+
+
 
 function PBKDF2_HMAC(w) {
   const key = crypto.pbkdf2Sync(w, "mnemonic", 2048, 64, "sha512");
@@ -121,26 +127,34 @@ function buildAddress(h) {
   return bs58.default.encode(bs58Address);
 }
 
-function P2SH() {
-  const segreto = crypto.createHash("sha256").update("ciao").digest("hex");
-  const frase = "ciao"; // segreto che solo la persona che ha messo il collaterale sa
+async function P2SH() {
+  const bits_entropy = Entopy();
+  const checksum = crypto.createHash("sha256").update(bits_entropy).digest("hex").slice(0, 1);
+  const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
+
+  const list_words = await words(bits_checksum);
+  console.log(list_words);
+
+  const segreto = crypto.createHash("sha256").update(list_words).digest("hex");
+  const frase = "la deve dare l'utente la list adi words"; // il segreto deve essere
+  /*
+  ${timeExpired} OP_CHECKLOCKTIMEVERIFY OP_DROP
   const timeExpired = Math.floor(Date.now() / 1000) + 86400 * 7; // 7
   var seconds = new Date().getTime() / 1000;
   const day = Math.round((timeExpired - seconds) / 86400);
   console.log(day);
+  */
 
   /*
-  lo script deve permettere alla persona di prelevare tutti i suoi soldi
-  ma deve aspettare che le persone che hanno bloccato i soldi sull'altro address
-  ritirino i loro e che sopratutto non prelevi i suoi soldi e quelli degli altri istantaneamente 
-
+  bisogna controllare il segreto e se è avvenuto il burn dall'altra parte che potrebbe avvenire tramit euna firma da parte del relay 
   la transazione va nella mempool e aspetta che le condizione (il tempo in questo caso) si verifichino 
   */
 
   const script = Buffer.from(
     `
-   OP_IF OP_SHA256 ${frase} OP_EQUAL ${segreto} 
-       ${timeExpired} OP_CHECKLOCKTIMEVERIFY OP_DROP
+    OP_IF
+       OP_SHA256 ${frase} OP_EQUAL ${segreto} 
+       controllare burn qua 
     OP_ELSE
        OP_RETURN
     OP_ENDIF
