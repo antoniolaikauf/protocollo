@@ -4,9 +4,43 @@ const ecc = require("tiny-secp256k1"); // npm install tiny-secp256k1
 
 async function createTransection(pk) {
   var privateKey = new bitcoin.PrivateKey(pk);
-  console.log(privateKey);
+  const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // dove ci sono i soldi
+  const sourceAddress = privateKey.toAddress();
+  const utxos = {
+    txId: "a44738ee268d5d821ebb9e425f920d759ba3b0d1402d10fd03bd89459c786d97",
+    outputIndex: 0,
+    address: "miaRRcydiZjmPBTZUnDCBcCVRcXYMuXEcp",
+    script: bitcoin.Script.buildPublicKeyHashOut(sourceAddress),
+    satoshis: 5000000,
+  };
+  // console.log(utxos);
 
-  // const ECPair = ECPairFactory(ecc);
+  var transaction = new bitcoin.Transaction()
+    .from(utxos) // Feed information about what unspent outputs one can use
+    .to(address_test, 1000) // Add an output with the given amount of satoshis
+    .change("miaRRcydiZjmPBTZUnDCBcCVRcXYMuXEcp") // Sets up a change address where the rest of the funds will go
+    .sign(privateKey);
+
+  console.log(transaction);
+}
+function main() {
+  const privateKey = "8f180c07802fcc099b5099daac2e0f79b1ab140c66d2f6bb70793054955e677c";
+  const transection = createTransection(privateKey);
+  // ora bisogna trasmettere la transazione bitcoin-cli -testnet sendrawtransaction <transactionHex>
+  console.log(transection);
+}
+
+main();
+
+// https://medium.com/@nagasha/how-to-build-and-broadcast-a-bitcoin-transaction-using-bitcoinjs-bitcoinjs-lib-on-testnet-2d9c8ac725d6
+
+// https://faucet.testnet4.dev/
+/*
+445248d07b131da7b567e91aa61ca149f1a796b5d48b79554b97dd0e47816fd1
+transazione a44738ee268d5d821ebb9e425f920d759ba3b0d1402d10fd03bd89459c786d97
+
+
+SPAZZATURA   // const ECPair = ECPairFactory(ecc);
   // const address = "mrJhTh6LBoMTVtqBDw9crVMtJku8yvHhP8";
   // const Net = bitcoin.networks.testnet;
   // //mupuDAkY5vc96uyzBJx7DQSgQpquNd6VpS
@@ -14,7 +48,6 @@ async function createTransection(pk) {
   // const txb = new bitcoin.Psbt({ Net });
   // // const keyPair = ECPair.fromPrivateKey(new Uint8Array(Buffer.from(pk, "hex")), Net); // Chiave privata in formato esadecimale
   // // const address_test = "miaRRcydiZjmPBTZUnDCBcCVRcXYMuXEcp"; // dove ci sono i soldi
-  // const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // dove ci sono i soldi
   // txb.addInput({
   //   hash: "445248d07b131da7b567e91aa61ca149f1a796b5d48b79554b97dd0e47816fd1", // utente deve fornire la id transection
   //   index: 0,
@@ -32,20 +65,4 @@ async function createTransection(pk) {
   //   txb.finalizeAllInputs();
   //   const tx = txb.extractTransaction().toHex();
   //   return tx;
-}
-function main() {
-  const privateKey = "8f180c07802fcc099b5099daac2e0f79b1ab140c66d2f6bb70793054955e677c";
-  const transection = createTransection(privateKey);
-  // ora bisogna trasmettere la transazione bitcoin-cli -testnet sendrawtransaction <transactionHex>
-  console.log(transection);
-}
-
-main();
-
-// https://medium.com/@nagasha/how-to-build-and-broadcast-a-bitcoin-transaction-using-bitcoinjs-bitcoinjs-lib-on-testnet-2d9c8ac725d6
-
-// https://faucet.testnet4.dev/
-/*
-445248d07b131da7b567e91aa61ca149f1a796b5d48b79554b97dd0e47816fd1
-transazione a44738ee268d5d821ebb9e425f920d759ba3b0d1402d10fd03bd89459c786d97
 */
