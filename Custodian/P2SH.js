@@ -69,7 +69,7 @@ function dubleHash(s) {
 function buildAddress(h) {
   const testnet_network = Buffer.from([0xc4]);
   const mainnet_network = Buffer.from([0x05]);
-  const address = Buffer.concat([mainnet_network, h]);
+  const address = Buffer.concat([testnet_network, h]);
 
   /* ps alcuni dicono che bisogna prendere i primi 4 byte ma in verita 
         sono i primi due byte da prendere 
@@ -95,7 +95,7 @@ async function P2SH() {
   console.log("private key " + privateKey);
   console.log("public key " + publicKey);
 
-  const segreto = "qu asegretoe";
+  const segreto = "qua segreto";
   // console.log(segreto);
 
   const frase = "la deve dare l'utente la list adi words"; // il segreto deve essere
