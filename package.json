@@ -2,6 +2,8 @@
   "dependencies": {
     "bitcoinjs-lib": "^6.1.7",
     "bs58": "^6.0.0",
-    "elliptic": "^6.6.1"
+    "ecpair": "^3.0.0-rc.0",
+    "elliptic": "^6.6.1",
+    "tiny-secp256k1": "^2.2.3"
   }
 }
