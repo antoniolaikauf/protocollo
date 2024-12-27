@@ -2,8 +2,6 @@
   "dependencies": {
     "bitcore-lib": "^10.7.0",
     "bs58": "^6.0.0",
-    "ecpair": "^3.0.0-rc.0",
-    "elliptic": "^6.6.1",
-    "tiny-secp256k1": "^2.2.3"
+    "elliptic": "^6.6.1"
   }
 }
