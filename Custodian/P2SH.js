@@ -19,12 +19,13 @@ async function words(bits) {
   for (let i = 0; i < bits.length; i += 11) {
     const chunk = bits.slice(i, i + 11);
     const number = parseInt(chunk, 2).toString(10);
-    
+
     i == 0 ? (list_words += element[number].replace("\r", "")) : (list_words += " " + element[number].replace("\r", ""));
   }
 
   return list_words;
 }
+
 /*
 
 CODICE SBAGLIATO ESSENDO CHE SI USA UN ADDRESS DI TIPO P2HS PER FARE CONDIZIONI 
@@ -136,6 +137,8 @@ async function P2SH() {
   console.log(list_words);
 
   const segreto = crypto.createHash("sha256").update(list_words).digest("hex");
+  console.log(segreto);
+
   const frase = "la deve dare l'utente la list adi words"; // il segreto deve essere
   /*
   ${timeExpired} OP_CHECKLOCKTIMEVERIFY OP_DROP

@@ -202,7 +202,7 @@ Nella figura seguente mostra i componenti che si devono sviluppare e quelli che 
 ![](componenti.png)
 
 - **Trust Assumption**: La blockchain fornisce un modello di fiducia che consente alle parti coinvolte di interagire senza necessità di un intermediario centrale.
-- **Relayer**: Questa entità esegue chiamate per operazioni cross-chain, utilizzando protocolli come l'Inter-Blockchain Communication (IBC) per trasmettere informazioni tra diverse blockchain.
+- **Relayer**: Questa entità esegue chiamate per operazioni cross-chain, utilizzando protocolli come l'Inter-Blockchain Communication (IBC) per trasmettere informazioni tra diverse blockchain ma stessa architettura.
 - **Custodian**: Funziona bloccando gli asset sulla blockchain prima della creazione di asset sintetici. Questo componente è particolarmente vulnerabile agli attacchi informatici.
 - **Token Interface**: Consente la conversione degli asset in asset sintetici, comunemente noti come "wrapped assets".
 - **Debt Issue**r: Responsabile della creazione di asset sintetici sulla blockchain di destinazione. Questa operazione avviene solo dopo che il custodian ha bloccato gli asset. Inoltre, il debt issuer gestisce anche il processo di "burn" degli asset sintetici quando si desidera riconvertirli.
