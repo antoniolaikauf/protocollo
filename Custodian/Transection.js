@@ -1,11 +1,12 @@
 const bitcoin = require("bitcore-lib");
-const ECPairFactory = require("ecpair").default; //  npm install ecpair
-const ecc = require("tiny-secp256k1"); // npm install tiny-secp256k1
 
 async function createTransection(pk) {
+  bitcoin.Networks.add(bitcoin.Networks.testnet);
   var privateKey = new bitcoin.PrivateKey(pk);
   const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // dove ci sono i soldi
-  const sourceAddress = privateKey.toAddress();
+  const sourceAddress = privateKey.toAddress(bitcoin.Networks.testnet);
+  console.log(sourceAddress.hashBuffer.toString("hex"));
+
   const utxos = {
     txId: "a44738ee268d5d821ebb9e425f920d759ba3b0d1402d10fd03bd89459c786d97",
     outputIndex: 0,
@@ -21,12 +22,13 @@ async function createTransection(pk) {
     .change("miaRRcydiZjmPBTZUnDCBcCVRcXYMuXEcp") // Sets up a change address where the rest of the funds will go
     .sign(privateKey);
 
-  console.log(transaction);
+  return transaction.serialize();
 }
 function main() {
   const privateKey = "8f180c07802fcc099b5099daac2e0f79b1ab140c66d2f6bb70793054955e677c";
   const transection = createTransection(privateKey);
   // ora bisogna trasmettere la transazione bitcoin-cli -testnet sendrawtransaction <transactionHex>
+  // bitcoin-cli sendrawtransaction <serialized transaction>
   console.log(transection);
 }
 
@@ -40,7 +42,11 @@ main();
 transazione a44738ee268d5d821ebb9e425f920d759ba3b0d1402d10fd03bd89459c786d97
 
 
-SPAZZATURA   // const ECPair = ECPairFactory(ecc);
+SPAZZATURA  
+const ECPairFactory = require("ecpair").default; //  npm install ecpair
+const ecc = require("tiny-secp256k1"); // npm install tiny-secp256k1
+
+// const ECPair = ECPairFactory(ecc);
   // const address = "mrJhTh6LBoMTVtqBDw9crVMtJku8yvHhP8";
   // const Net = bitcoin.networks.testnet;
   // //mupuDAkY5vc96uyzBJx7DQSgQpquNd6VpS
