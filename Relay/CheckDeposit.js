@@ -4,10 +4,13 @@ const axios = require("axios");
 
 async function address() {
   try {
-    const data = await axios.get("https://blockstream.info/api/address/bc1qgsmfaz22lzy08wqjspd8xtm43hal5tgz4hyac6", {
-      timeout: 10000, // Aumenta il timeout a 10 secondi
+    // const data = await axios.get("https://blockstream.info/api/address/bc1qgsmfaz22lzy08wqjspd8xtm43hal5tgz4hyac6/txs", {
+    // timeout: 10000, // Aumenta il timeout a 10 secondi
+    // });
+    const data = await axios.get("https://mempool.space/testnet4/api/address/mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN/txs", {
+      timeout: 50000, // Aumenta il timeout a 10 secondi
     });
-    console.log(data);
+    console.log(data.data);
   } catch (error) {
     console.log("Errore durante la richiesta:", error.message);
   }
