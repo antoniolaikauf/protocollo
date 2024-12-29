@@ -1,32 +1,48 @@
-// const Client = require("bitcoin-core");
-// const client = new Client({ network: "regtest" });
 const axios = require("axios");
-
-async function address() {
-  try {
-    // const data = await axios.get("https://blockstream.info/api/address/bc1qgsmfaz22lzy08wqjspd8xtm43hal5tgz4hyac6/txs", {
-    // timeout: 10000, // Aumenta il timeout a 10 secondi
-    // });
-    const data = await axios.get("https://mempool.space/testnet4/api/address/mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN/txs", {
-      timeout: 50000, // Aumenta il timeout a 10 secondi
-    });
-    console.log(data.data);
-  } catch (error) {
-    console.log("Errore durante la richiesta:", error.message);
-  }
-}
-
-address();
-
-// const Peer = new bitcoinCore({ network: "testnet" });
-
 const addressUsers = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
 const transectionRaw =
   "02000000014cbcbbe7f06a2d51ace150946691ea4239ee067dc3b81f1a956d183a2723fe6c000000006a47304402206860351004fcbd685d43693be7b05d4c9b57e1a2ce9e7eaa488fe7e7e5460f6d022060c16e210f4188095abb03aa2ea0eb8a6946ba3735adabee096f8fda2bea7c9b012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02e8030000000000001976a91406c0aa6ab779c914b9558cf4a65087fcecff709388ac10ef4b00000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000";
+const amount = 500000; // in satoshi
+
+async function transectionAddress(address) {
+  // const data = await axios.get("https://blockstream.info/api/address/${address}/txs", {
+  // timeout: 10000,
+  // });
+  const transactions = await axios.get(`https://mempool.space/testnet4/api/address/${address}/txs`, {
+    timeout: 50000,
+  });
+
+  return transactions.data;
+}
+
+async function validate(txs) {
+  const heightTip = await axios.get("https://mempool.space/testnet4/api/blocks/tip/height");
+
+  txs.forEach((tx) => {
+    const checkHeight = heightTip.data - tx.status.block_height;
+    if (5 < checkHeight && checkHeight < 103) {
+      console.log("controllo");
+      validateOutput(tx, amount, addressUsers);
+    }
+  });
+}
+
+function validateOutput(tx, satoshi, address) {
+  tx.vout.forEach((txOutput) => {
+    if (txOutput.value === satoshi && txOutput.scriptpubkey_address === address) {
+      console.log("passo");
+    }
+  });
+}
+
+async function main() {
+  const txs = await transectionAddress(addressUsers);
+  const checkHeight = validate(txs);
+}
+
+main();
 
 /*
-
-
 testnet-seed.bitcoin.petertodd.org
 testnet-seed.bluematt.me
 testnet-seed.bitcoin.schildbach.de
