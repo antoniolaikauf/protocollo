@@ -1,5 +1,19 @@
-const Client = require("bitcoin-core");
+// const Client = require("bitcoin-core");
 // const client = new Client({ network: "regtest" });
+const axios = require("axios");
+
+async function address() {
+  try {
+    const data = await axios.get("https://blockstream.info/api/address/bc1qgsmfaz22lzy08wqjspd8xtm43hal5tgz4hyac6", {
+      timeout: 10000, // Aumenta il timeout a 10 secondi
+    });
+    console.log(data);
+  } catch (error) {
+    console.log("Errore durante la richiesta:", error.message);
+  }
+}
+
+address();
 
 // const Peer = new bitcoinCore({ network: "testnet" });
 

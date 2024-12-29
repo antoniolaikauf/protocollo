@@ -1,10 +1,9 @@
 {
   "dependencies": {
-    "bitcoin-core": "^4.2.0",
+    "axios": "^1.7.9",
     "bitcore-lib": "^10.7.0",
     "bitcore-p2p": "^10.7.0",
     "bs58": "^6.0.0",
-    "elliptic": "^6.6.1",
-    "socks5-client": "^1.2.8"
+    "elliptic": "^6.6.1"
   }
 }
