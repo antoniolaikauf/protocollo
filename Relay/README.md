@@ -1,1 +1,0 @@
-bisogna fare un contratto sulla chain di destinazione che 

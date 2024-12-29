@@ -5,8 +5,9 @@ async function createTransection(pk) {
   var privateKey = new bitcoin.PrivateKey(pk);
   const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // address a cui inviare soldi
   const sourceAddress = privateKey.toAddress(bitcoin.Networks.testnet);
+
   const utxos = {
-    txId: "6cfe23273a186d951a1fb8c37d06ee3942ea91669450e1ac512d6af0e7bbbc4c",
+    txId: "c22cd889dbf88ce536b929fe35392333481e45621281d21af1c55350ad4d780d",
     outputIndex: 0,
     address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
     script: bitcoin.Script.buildPublicKeyHashOut(sourceAddress),
@@ -42,7 +43,7 @@ main();
 
 mettere soldi su address mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN
 
-
+transazione c22cd889dbf88ce536b929fe35392333481e45621281d21af1c55350ad4d780d
 
 private key: 793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f, master chain: b2c832d167457da44eaf72ec946e5b9e94a0151f927680528e9b9775000779ec
 chiave pubblica: 04ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7

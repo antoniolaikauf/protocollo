@@ -108,10 +108,10 @@ async function P2SH() {
   const script = Buffer.from(
     `
    OP_IF
-   OP_SHA256 ${frase} OP_EQUAL ${segreto} 
+   OP_SHA256 ${frase} OP_EQUAL ${segreto} OP_AND 
    controllare burn qua 
    OP_ELSE
-   OP_RETURN
+      OP_RETURN
    OP_ENDIF
    `,
     "ascii"
