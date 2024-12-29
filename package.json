@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bitcore-lib": "^10.7.0",
+    "bitcore-p2p": "^10.7.0",
     "bs58": "^6.0.0",
     "elliptic": "^6.6.1"
   }
