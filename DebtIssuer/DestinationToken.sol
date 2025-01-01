@@ -2,13 +2,26 @@
 pragma solidity ^0.8.28;
 
 contract DestinationToken {
-    address addressBridge;
+    address addressBridge = mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN;
 
-    modifier onlyBridge() {
-        require(addressBridge == msg.sender, "only bridge can do this call");
-        _;
+    function signatureVerifier(
+        address _addressBTC,
+        uint8 _v,
+        bytes32 _hashMessage,
+        bytes32 _r,
+        bytes32 _s
+    ) external {
+        address addressBTC = ecrecover(_hashMessage, _v, _r, _s);
+        require(addressBTC == _addressBTC, "invalid sign");
+
+        mintToken();
     }
-    function mintToken() public onlyBridge {}
 
-    function burnToken() public onlyBridge {}
+    // modifier onlyBridge() {
+    //     require(addressBridge == msg.sender, "only bridge can do this call");
+    //     _;
+    // }
+    function mintToken() public {}
+
+    function burnToken() public {}
 }

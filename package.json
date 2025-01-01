@@ -1,9 +1,12 @@
 {
   "dependencies": {
     "axios": "^1.7.9",
+    "bitcore-explorers": "^1.0.1",
     "bitcore-lib": "^10.7.0",
     "bitcore-p2p": "^10.7.0",
     "bs58": "^6.0.0",
-    "elliptic": "^6.6.1"
+    "elliptic": "^6.6.1",
+    "keccak256": "^1.0.6",
+    "ws": "^8.18.0"
   }
 }
