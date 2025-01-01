@@ -27,8 +27,7 @@ async function createTransection(pk) {
 function main() {
   const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
   const transection = createTransection(privateKey);
-  // ora bisogna trasmettere la transazione bitcoin-cli -testnet sendrawtransaction <transactionHex>
-  // bitcoin-cli sendrawtransaction <serialized transaction>
+  // inviare transection ad un nodo
   console.log(transection);
 }
 
@@ -39,8 +38,6 @@ main();
 // https://faucet.testnet4.dev/
 
 /*
-
-
 mettere soldi su address mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN
 
 transazione c22cd889dbf88ce536b929fe35392333481e45621281d21af1c55350ad4d780d
