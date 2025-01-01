@@ -71,10 +71,6 @@ function buildAddress(h) {
   const mainnet_network = Buffer.from([0x05]);
   const address = Buffer.concat([testnet_network, h]);
 
-  /* ps alcuni dicono che bisogna prendere i primi 4 byte ma in verita 
-        sono i primi due byte da prendere 
-  */
-
   const hash = crypto.createHash("sha256").update(crypto.createHash("sha256").update(address).digest()).digest().slice(0, 4);
 
   const bs58Address = Buffer.concat([address, hash]);
@@ -107,17 +103,19 @@ async function P2SH() {
 
   const script = Buffer.from(
     `
-   OP_IF
-   OP_SHA256 ${frase} OP_EQUAL ${segreto} OP_AND 
-   controllare burn qua 
-   OP_ELSE
-      OP_RETURN
+    OP_IF
+       OP_SHA256 ${frase} OP_EQUAL ${segreto} 
+
+    OP_ELSE
+       OP_RETURN
    OP_ENDIF
    `,
     "ascii"
   );
 
   const hashScript = dubleHash(script);
+  console.log(hashScript.toString("hex"));
+
   const address = buildAddress(hashScript);
   console.log(address);
 }

@@ -20,7 +20,7 @@ async function createTransection(pk) {
     .from(utxos) // Feed information about what unspent outputs one can use
     .to(address_test, 1000) // Add an output with the given amount of satoshis
     .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
-    .sign(privateKey);
+    .sign();
 
   return transaction.serialize();
 }
