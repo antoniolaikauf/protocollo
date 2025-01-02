@@ -1,15 +1,17 @@
 const bitcoin = require("bitcore-lib");
-const net = require("net");
 const axios = require("axios");
 
- function createTransection(pk) {
+function createTransection(pk) {
   bitcoin.Networks.add(bitcoin.Networks.testnet);
   var privateKey = new bitcoin.PrivateKey(pk);
-  const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // address a cui inviare soldi
+  // const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // address a cui inviare soldi
+  const address_test = "2N18NxC7uHC36ETaYAjpEeLtG6pJdThB1fz"; // address a cui inviare soldi
   const sourceAddress = privateKey.toAddress(bitcoin.Networks.testnet);
 
+  console.log(bitcoin.Script.buildPublicKeyHashOut(sourceAddress).chunks[2].buf.toString("hex"));
+
   const utxos = {
-    txId: "6d4a920063b50cc8bfa73f2ee3ee4a72ede3389c162090b54182cd4b5ac6e80c",
+    txId: "34f4100aed15f12ebd72df52ad9c2feb8e701f435389c06a69bdad21e61d15a9",
     outputIndex: 0,
     address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
     script: bitcoin.Script.buildPublicKeyHashOut(sourceAddress),
@@ -20,7 +22,7 @@ const axios = require("axios");
   const fee = 1000;
   var transaction = new bitcoin.Transaction()
     .from(utxos) // Feed information about what unspent outputs one can use
-    .to(address_test, 1000) // Add an output with the given amount of satoshis
+    .to(address_test, 400000) // Add an output with the given amount of satoshis
     .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
     .fee(fee)
     .sign(privateKey);
@@ -39,7 +41,7 @@ function broadcast(tx) {
       },
     })
     .then((responde) => {
-      console.log("rispost" + responde);
+      console.log("risposta " + responde);
     })
     .catch((err) => {
       console.log("errore" + err);
@@ -48,6 +50,7 @@ function broadcast(tx) {
 
 function main() {
   const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
+  // const privateKey = "ed0c2a2bd1f997e911e6b37921a97a6cfd9cadbeda307c1b7616aebedc282434";
   const transection = createTransection(privateKey);
   // inviare transection ad un nodo
   broadcast(transection);
@@ -91,5 +94,9 @@ ADDRESS: b'mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN'
   //   .on("end", function () {
   //     console.log("DONE");
   //   });
+
+
+mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF
+  mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN
 
 */

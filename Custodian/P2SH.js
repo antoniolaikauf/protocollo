@@ -72,7 +72,6 @@ function buildAddress(h) {
   const address = Buffer.concat([testnet_network, h]);
 
   const hash = crypto.createHash("sha256").update(crypto.createHash("sha256").update(address).digest()).digest().slice(0, 4);
-
   const bs58Address = Buffer.concat([address, hash]);
 
   return bs58.default.encode(bs58Address);
@@ -86,41 +85,45 @@ async function P2SH() {
   const list_words = await words(bits_checksum);
   const key = PBKDF2_HMAC(list_words);
   const { privateKey, publicKey } = eliptic_curve(key);
-  // const privateKeyWIF = bs58.default.encode(Buffer.from(eliptic_curve(key), "hex"));
-  // console.log("private key " + privateKeyWIF);
+
   console.log("private key " + privateKey);
   console.log("public key " + publicKey);
 
-  const segreto = "qua segreto";
-  // console.log(segreto);
+  const publicKeyHash = dubleHash(publicKey);
 
-  const frase = "la deve dare l'utente la list adi words"; // il segreto deve essere
+  console.log(publicKeyHash);
 
   /*
   bisogna controllare il segreto e se è avvenuto il burn dall'altra parte che potrebbe avvenire tramit euna firma da parte del relay 
   la transazione va nella mempool e aspetta che le condizione (il tempo in questo caso) si verifichino 
   */
 
-  const script = Buffer.from(
-    `
-   OP_IF
-   OP_SHA256 ${frase} OP_EQUAL ${segreto} 
-   controllare burn qua 
-   OP_ELSE
-   OP_RETURN
-   OP_ENDIF
-   `,
-    "ascii"
-  );
+  const script = Buffer.concat([
+    Buffer.from([0x63]),
+    Buffer.from([0x76]),
+    Buffer.from([0xa9]),
+    Buffer.from([0x14]),
+    publicKeyHash,
+    Buffer.from([0x88]),
+    Buffer.from([0xac]),
+    Buffer.from([0x67]),
+    Buffer.from([0x6a]),
+    Buffer.from([0x68]),
+  ]);
+
+  console.log(script);
 
   const hashScript = dubleHash(script);
-  console.log(hashScript.toString("hex"));
+
+  console.log("rimeped address " + hashScript.toString("hex"));
 
   const address = buildAddress(hashScript);
   console.log(address);
 }
 
 P2SH();
+
+// https://bitcointalk.org/index.php?topic=5229211.0 creare p2sh address
 
 // https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/11_2_Using_CLTV_in_Scripts.md
 
@@ -130,40 +133,12 @@ const timeExpired = Math.floor(Date.now() / 1000) + 86400 * 7; // 7
 var seconds = new Date().getTime() / 1000;
 const day = Math.round((timeExpired - seconds) / 86400);
 console.log(day);
-*/
 
-/*
 
-CODICE SBAGLIATO ESSENDO CHE SI USA UN ADDRESS DI TIPO P2HS PER FARE CONDIZIONI 
-E NON SERVE UNA PERSONA CHE FACCIA DA COLLATERALE E QUINDI QUESTO è SBAGLIATO 
-
-// const bitcoin = require("bitcoinjs-lib"); // dipendenza npm install bitcoinjs-lib per instllarlo
-
-function build_address(data) {
-  const payload = "00" + data;
-  const first_hash = crypto.createHash("sha256").update(Buffer.from(payload, "hex")).digest("hex");
-  const second_hash = crypto.createHash("sha256").update(Buffer.from(first_hash, "hex")).digest("hex").slice(0, 8);
-
-  const fullPayload = payload + second_hash;
-  console.log("sono payload lunghezza " + fullPayload.length + " sono payload " + fullPayload);
-
-  const address = bs58.default.encode(Buffer.from(fullPayload, "hex"));
-  return address;
-}
-
-async function main() {
-  const bits_entropy = Entopy();
-  const checksum = crypto.createHash("sha256").update(bits_entropy).digest("hex").slice(0, 1);
-  const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
-
-  const list_words = await words(bits_checksum);
-
-  const d_hash = duble_hash(key_pair);
-  const address = build_address(d_hash);
-  console.log("sono address " + address);
-  return address;
-}
-
-console.log(main());
-
+private key b117532395674c64a408d731a1354be8b0f1f8e06a4ce94a0eda126378be2451
+public key 035148e86faa66aa63c2b1562375962bba813658c0bc59a0903dea15aab6ee757
+<Buffer 97 83 40 e8 00 56 9e 32 b1 0f d1 ba c0 5d df ca 28 dd 21 31>
+<Buffer 63 76 a9 14 97 83 40 e8 00 56 9e 32 b1 0f d1 ba c0 5d df ca 28 dd 21 31 88 ac 67 6a 68>
+rimeped address 567593c73a2a029c9e829a02bf4e82b05e3b3611
+address 2N18NxC7uHC36ETaYAjpEeLtG6pJdThB1fz
 */
