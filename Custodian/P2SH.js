@@ -29,9 +29,9 @@ async function words(bits) {
 }
 
 function PBKDF2_HMAC(w) {
-  const key = crypto.pbkdf2Sync(w, "mnemonic", 2048, 64, "sha512");
+  const key = crypto.pbkdf2Sync(w, Buffer.from("mnemonic"), 2048, 64, "sha512");
 
-  const hmac = crypto.pbkdf2Sync(key, "Bitcoin seed", 1, 64, "sha512");
+  const hmac = crypto.pbkdf2Sync(key, Buffer.from("Bitcoin seed"), 1, 64, "sha512");
 
   const private_key = hmac.toString("hex").slice(0, 64);
   const main_chain = hmac.toString("hex").slice(64);
@@ -90,8 +90,7 @@ async function P2SH() {
   console.log("public key " + publicKey);
 
   const publicKeyHash = dubleHash(publicKey);
-
-  console.log(publicKeyHash);
+  console.log("hash public key " + publicKeyHash.toString("hex"));
 
   /*
   bisogna controllare il segreto e se è avvenuto il burn dall'altra parte che potrebbe avvenire tramit euna firma da parte del relay 
@@ -99,16 +98,16 @@ async function P2SH() {
   */
 
   const script = Buffer.concat([
-    Buffer.from([0x63]),
-    Buffer.from([0x76]),
-    Buffer.from([0xa9]),
-    Buffer.from([0x14]),
-    publicKeyHash,
-    Buffer.from([0x88]),
-    Buffer.from([0xac]),
-    Buffer.from([0x67]),
-    Buffer.from([0x6a]),
-    Buffer.from([0x68]),
+    Buffer.from([0x63]), // OP_IF
+    Buffer.from([0x76]), // OP_DUP
+    Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
+    Buffer.from([0x14]), // length pubKeyHash (20 byte)
+    publicKeyHash, // public key doblue hash
+    Buffer.from([0x88]), // OP_EQUALVERIFY
+    Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
+    Buffer.from([0x67]), // OP_ELSE
+    Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
+    Buffer.from([0x68]), // OP_ENDIF
   ]);
 
   console.log(script);
@@ -141,4 +140,14 @@ public key 035148e86faa66aa63c2b1562375962bba813658c0bc59a0903dea15aab6ee757
 <Buffer 63 76 a9 14 97 83 40 e8 00 56 9e 32 b1 0f d1 ba c0 5d df ca 28 dd 21 31 88 ac 67 6a 68>
 rimeped address 567593c73a2a029c9e829a02bf4e82b05e3b3611
 address 2N18NxC7uHC36ETaYAjpEeLtG6pJdThB1fz
+
+
+
+
+private key 97401bd9e0c17c8ffdbd24d7e81141c43b4aa31e914a1ae24d05120d55243ee3
+public key 023e00a721085a54d615ed7b3c3f3d7d188ebe7978be49d338a800d25a75b126a
+hash public key 33a85c801ce2b6a4bec5f168eafe52e78a4edf21
+<Buffer 63 76 a9 14 33 a8 5c 80 1c e2 b6 a4 be c5 f1 68 ea fe 52 e7 8a 4e df 21 88 ac 67 6a 68>
+rimeped address a77c5f12e91264efd3aad2a1ebc90e3ec69feaf2
+2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG
 */
