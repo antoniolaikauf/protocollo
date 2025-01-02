@@ -65,7 +65,6 @@ function dubleHash(s) {
 
 function createTransection1(pk) {
   const privateKey2 = new bitcoin.PrivateKey("97401bd9e0c17c8ffdbd24d7e81141c43b4aa31e914a1ae24d05120d55243ee3");
-
   const t = dubleHash("023e00a721085a54d615ed7b3c3f3d7d188ebe7978be49d338a800d25a75b126a");
 
   // Lo script che hai già (può essere un P2SH, P2PKH, ecc.)
@@ -94,7 +93,7 @@ function createTransection1(pk) {
   const address_test = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // address a cui inviare soldi
 
   const redeemScript = bitcoin.Script.fromBuffer(script); // Il tuo script P2SH
-  // console.log(redeemScript);
+  // console.log(redeemScript).toString("hex");
 
   const utxos = {
     txId: "5bc77d66579662f1fe10db6b42dbe19b6add4a81d4ff9fb4c2cad522b55e2308",
@@ -108,14 +107,14 @@ function createTransection1(pk) {
 
   const fee = 200;
   var transaction = new bitcoin.Transaction()
-    .from(utxos) // Feed information about what unspent outputs one can use
+    .from(utxos, redeemScript) // Feed information about what unspent outputs one can use
     .to(address_test, 800) // Add an output with the given amount of satoshis
     .change("2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG") // Sets up a change address where the rest of the funds will go
     .fee(fee)
     .sign(privateKey2);
   // console.log(transaction);
 
-  return transaction.serialize({ disableIsFullySigned: true });
+  return transaction.serialize();
 }
 
 function main() {

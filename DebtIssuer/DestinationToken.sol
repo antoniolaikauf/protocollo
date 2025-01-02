@@ -2,17 +2,22 @@
 pragma solidity ^0.8.28;
 
 contract DestinationToken {
-    address addressBridge = mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN;
-
     function signatureVerifier(
-        address _addressBTC,
+        bytes20 _addressBTC, // fornire il rimped160
         uint8 _v,
         bytes32 _hashMessage,
         bytes32 _r,
         bytes32 _s
     ) external {
+        /**
+         * @dev addressBTC avrà solo 20 byte derivati dall'address di BTC
+         * @dev si fanno il double hash e si controlla  
+         */
         address addressBTC = ecrecover(_hashMessage, _v, _r, _s);
-        require(addressBTC == _addressBTC, "invalid sign");
+        bytes20 derivedBTCAddress = ripemd160(
+            abi.encodePacked(sha256(abi.encodePacked(addressBTC)))
+        );
+        require(derivedBTCAddress == _addressBTC, "invalid sign");
 
         mintToken();
     }
