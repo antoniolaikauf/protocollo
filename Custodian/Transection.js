@@ -198,66 +198,77 @@ function main1() {
   */
 
   const script1 = Buffer.concat([
-    Buffer.from([0x76]),
+    // Buffer.from([0x76]),
     Buffer.from([0xa9]),
     Buffer.from([0x14]),
-    pubKeyHash,
-    Buffer.from([0x88]),
-    Buffer.from([0xac]),
+    pubKeyHash, // redeem  script
+    Buffer.from([0x87]),
+    // Buffer.from([0x88]),
+    // Buffer.from([0xac]),
   ]);
 
   const script = Buffer.concat([
     Buffer.from([0x76]),
     Buffer.from([0xa9]),
     Buffer.from([0x14]),
-    publicKeyHash,
+    publicKeyHash, // hash public key
     Buffer.from([0x88]),
     Buffer.from([0xac]),
   ]);
 
-  const versionTransection = "02000000";
+  const versionTransection = "01000000";
   const numberInput = "01";
   const hashTXReverse = reverseTx("9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96");
   const indexPrevOutput = "00000000";
+  const emptyScript = "00";
   const sequence = "ffffffff";
   const numberOut = "01";
-  const valueOutput = "2bc0000000000000";
-  const scriptLenghtOutput = "19";
-  const scriptPubKeyOutput = script1.toString("hex");
+  const valueOutput = "2bc0000000000000"; // 700 satoshis
+  const ScriptPubKey = script1.toString("hex");
+  const scriptLenghtOutput = (ScriptPubKey.length / 2).toString(16);
+
   const lookTime = "00000000";
+  const sigHashCode = "01000000";
 
   const dataToSign = Buffer.concat([
     Buffer.from(versionTransection),
     Buffer.from(numberInput),
     Buffer.from(hashTXReverse),
     Buffer.from(indexPrevOutput),
+    Buffer.from(pubKeyHash),
+    // Buffer.from(script.toString("hex")),
     Buffer.from(sequence),
     Buffer.from(numberOut),
     Buffer.from(valueOutput),
     Buffer.from(scriptLenghtOutput),
-    Buffer.from(scriptPubKeyOutput),
+    Buffer.from(ScriptPubKey),
     Buffer.from(lookTime),
+    // Buffer.from(sigHashCode),
   ]);
 
   const keyPair = ec.keyFromPrivate("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9");
   const sign = keyPair.sign(dataToSign);
-  const signScriptInput = [sign.toDER("hex"), script.toString("hex")];
+
+  const scriptSig = [sign.toDER("hex"), script.toString("hex")].join("");
+  const scriptLengthInput = (scriptSig.length / 2).toString(16);
 
   const rawTx = Buffer.concat([
     Buffer.from(versionTransection),
     Buffer.from(numberInput),
     Buffer.from(hashTXReverse),
     Buffer.from(indexPrevOutput),
-    Buffer.from(signScriptInput.join("")),
+    Buffer.from(scriptLengthInput),
+    Buffer.from(scriptSig),
     Buffer.from(sequence),
     Buffer.from(numberOut),
     Buffer.from(valueOutput),
     Buffer.from(scriptLenghtOutput),
-    Buffer.from(scriptPubKeyOutput),
+    Buffer.from(ScriptPubKey),
     Buffer.from(lookTime),
+    // Buffer.from(sigHashCode),
   ]);
 
-  console.log("la rawtx\n" + rawTx + "\n\n");
+  console.log("la rawtx\n\n" + rawTx + "\n\n");
 }
 
 main1();
