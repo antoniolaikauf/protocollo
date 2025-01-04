@@ -60,7 +60,7 @@ function eliptic_curve(key) {
 
 // P2SH PERMETTE DI BLOCCARE BITCOIN IN SPECIFICI ADDRESS
 
-function dubleHash(s) {
+function doubleHash(s) {
   const first_hash = crypto.createHash("sha256").update(s).digest();
   const scriptHash = crypto.createHash("ripemd160").update(first_hash).digest();
   return scriptHash;
@@ -78,6 +78,7 @@ function buildAddress(h) {
 }
 
 async function P2SH() {
+  const bitcoin = require("bitcore-lib");
   const bits_entropy = Entopy();
   const checksum = crypto.createHash("sha256").update(bits_entropy).digest("hex").slice(0, 1);
   const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
@@ -89,7 +90,7 @@ async function P2SH() {
   console.log("private key " + privateKey);
   console.log("public key " + publicKey);
 
-  const publicKeyHash = dubleHash(publicKey);
+  const publicKeyHash = doubleHash(publicKey);
   console.log("hash public key " + publicKeyHash.toString("hex"));
 
   /*
@@ -98,23 +99,37 @@ async function P2SH() {
   */
 
   const script = Buffer.concat([
-    Buffer.from([0x63]), // OP_IF
+    // Buffer.from([0x63]), // OP_IF
     Buffer.from([0x76]), // OP_DUP
     Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
     Buffer.from([0x14]), // length pubKeyHash (20 byte)
     publicKeyHash, // public key doblue hash
     Buffer.from([0x88]), // OP_EQUALVERIFY
     Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
-    Buffer.from([0x67]), // OP_ELSE
-    Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
-    Buffer.from([0x68]), // OP_ENDIF
+    // Buffer.from([0x67]), // OP_ELSE
+    // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
+    // Buffer.from([0x68]), // OP_ENDIF
   ]);
 
+  const redeemScript = bitcoin.Script.fromBuffer(
+    Buffer.concat([
+      Buffer.from([0x76]), // OP_DUP
+      Buffer.from([0xa9]), // OP_HASH160
+      Buffer.from([0x14]), // Lunghezza della chiave pubblica hash (20 byte)
+      publicKeyHash,
+      Buffer.from([0x88]), // OP_EQUALVERIFY
+      Buffer.from([0xac]), // OP_CHECKSIG
+    ])
+  );
   console.log(script);
 
-  const hashScript = dubleHash(script);
+  const hashScript = doubleHash(script);
+  const scriptHash = bitcoin.crypto.Hash.sha256ripemd160(redeemScript.toBuffer());
 
-  console.log("rimeped address " + hashScript.toString("hex"));
+  console.log("hash dello script" + hashScript.toString("hex"));
+
+  const p2shAddress = new bitcoin.Address(scriptHash, bitcoin.Networks.testnet, bitcoin.Address.PayToScriptHash);
+  console.log(p2shAddress.toString("hex"));
 
   const address = buildAddress(hashScript);
   console.log(address);
@@ -150,4 +165,14 @@ hash public key 33a85c801ce2b6a4bec5f168eafe52e78a4edf21
 <Buffer 63 76 a9 14 33 a8 5c 80 1c e2 b6 a4 be c5 f1 68 ea fe 52 e7 8a 4e df 21 88 ac 67 6a 68>
 rimeped address a77c5f12e91264efd3aad2a1ebc90e3ec69feaf2
 2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG
+
+
+
+
+private key 191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9
+public key 03f6a19b3cf3240dad60914626e293410008821f63fc05add0aaf5803791c27a33
+hash public key 9ff9f4e7b35c883822d3a0cfc46f6160ca2f7403
+<Buffer 76 a9 14 9f f9 f4 e7 b3 5c 88 38 22 d3 a0 cf c4 6f 61 60 ca 2f 74 03 88 ac>
+rimeped address f1384ced7248c3db7fe1950d415772291fafae84
+2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr
 */
