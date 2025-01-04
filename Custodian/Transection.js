@@ -171,6 +171,10 @@ ouput 2 length 19
 006b483045022100bfb9fb765d30d70582c7d5e22aecd93f6253f0545cb456ec6e82ab0e477c4fbf022039ce8e3a9046fa85a88e0f332a96fe97d88076aeb46cfef6b4e2a5c1bb4719e1012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02e80300000000000017a914f1384ced7248c3db7fe1950d415772291fafae848750990700000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
 */
 
+const EC = require("elliptic").ec; // dipendenza da installare
+const ec = new EC("secp256k1");
+const bs58check = require("bs58check");
+
 function reverseTx(tx) {
   return tx.split("").reverse().join("");
 }
@@ -179,31 +183,81 @@ function main1() {
   const privateKey2 = new bitcoin.PrivateKey("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9", bitcoin.Networks.testnet);
   const publicKey2 = privateKey2.toPublicKey().toString();
   const publicKeyHash = doubleHash(publicKey2);
-  const script = Buffer.concat([
-    // Buffer.from([0x63]), // OP_IF
-    Buffer.from([0x76]), // OP_DUP
-    Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
-    Buffer.from([0x14]), // length pubKeyHash (20 byte)
-    publicKeyHash, // public key doblue hash
-    Buffer.from([0x88]), // OP_EQUALVERIFY
-    Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
-    // Buffer.from([0x67]), // OP_ELSE
-    // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
-    // Buffer.from([0x68]), // OP_ENDIF
+
+  const address = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
+
+  const decoded = bs58check.default.decode(address);
+
+  const pubKeyHash = Buffer.from(decoded.slice(1));
+
+  /*
+  Redeem Script: Questo è lo script che devi fornire per "sbloccare" i fondi in una
+  transazione P2SH. Quindi, se qualcuno vuole spendere i fondi destinati all'indirizzo 
+  P2SH, deve fornire il redeem script corretto che è stato utilizzato per creare
+  l'indirizzo P2SH.
+  */
+
+  const script1 = Buffer.concat([
+    Buffer.from([0x76]),
+    Buffer.from([0xa9]),
+    Buffer.from([0x14]),
+    pubKeyHash,
+    Buffer.from([0x88]),
+    Buffer.from([0xac]),
   ]);
 
-  const versionTransection = "01000000";
+  const script = Buffer.concat([
+    Buffer.from([0x76]),
+    Buffer.from([0xa9]),
+    Buffer.from([0x14]),
+    publicKeyHash,
+    Buffer.from([0x88]),
+    Buffer.from([0xac]),
+  ]);
+
+  const versionTransection = "02000000";
   const numberInput = "01";
   const hashTXReverse = reverseTx("9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96");
   const indexPrevOutput = "00000000";
-  const scritptHash = script.toString("hex");
   const sequence = "ffffffff";
-  const lookTime = "00000000";
   const numberOut = "01";
-  const value = "2bc0000000000000";
-  const scriptLenght = "19";
-  const scriptPubKey = script.toString("hex");
-  console.log(scriptPubKey);
+  const valueOutput = "2bc0000000000000";
+  const scriptLenghtOutput = "19";
+  const scriptPubKeyOutput = script1.toString("hex");
+  const lookTime = "00000000";
+
+  const dataToSign = Buffer.concat([
+    Buffer.from(versionTransection),
+    Buffer.from(numberInput),
+    Buffer.from(hashTXReverse),
+    Buffer.from(indexPrevOutput),
+    Buffer.from(sequence),
+    Buffer.from(numberOut),
+    Buffer.from(valueOutput),
+    Buffer.from(scriptLenghtOutput),
+    Buffer.from(scriptPubKeyOutput),
+    Buffer.from(lookTime),
+  ]);
+
+  const keyPair = ec.keyFromPrivate("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9");
+  const sign = keyPair.sign(dataToSign);
+  const signScriptInput = [sign.toDER("hex"), script.toString("hex")];
+
+  const rawTx = Buffer.concat([
+    Buffer.from(versionTransection),
+    Buffer.from(numberInput),
+    Buffer.from(hashTXReverse),
+    Buffer.from(indexPrevOutput),
+    Buffer.from(signScriptInput.join("")),
+    Buffer.from(sequence),
+    Buffer.from(numberOut),
+    Buffer.from(valueOutput),
+    Buffer.from(scriptLenghtOutput),
+    Buffer.from(scriptPubKeyOutput),
+    Buffer.from(lookTime),
+  ]);
+
+  console.log("la rawtx\n" + rawTx + "\n\n");
 }
 
 main1();

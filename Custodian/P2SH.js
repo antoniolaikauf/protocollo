@@ -78,7 +78,6 @@ function buildAddress(h) {
 }
 
 async function P2SH() {
-  const bitcoin = require("bitcore-lib");
   const bits_entropy = Entopy();
   const checksum = crypto.createHash("sha256").update(bits_entropy).digest("hex").slice(0, 1);
   const bits_checksum = bits_entropy + parseInt(checksum, 16).toString(2).padStart(4, "0");
@@ -111,25 +110,10 @@ async function P2SH() {
     // Buffer.from([0x68]), // OP_ENDIF
   ]);
 
-  const redeemScript = bitcoin.Script.fromBuffer(
-    Buffer.concat([
-      Buffer.from([0x76]), // OP_DUP
-      Buffer.from([0xa9]), // OP_HASH160
-      Buffer.from([0x14]), // Lunghezza della chiave pubblica hash (20 byte)
-      publicKeyHash,
-      Buffer.from([0x88]), // OP_EQUALVERIFY
-      Buffer.from([0xac]), // OP_CHECKSIG
-    ])
-  );
-  console.log(script);
 
   const hashScript = doubleHash(script);
-  const scriptHash = bitcoin.crypto.Hash.sha256ripemd160(redeemScript.toBuffer());
 
   console.log("hash dello script" + hashScript.toString("hex"));
-
-  const p2shAddress = new bitcoin.Address(scriptHash, bitcoin.Networks.testnet, bitcoin.Address.PayToScriptHash);
-  console.log(p2shAddress.toString("hex"));
 
   const address = buildAddress(hashScript);
   console.log(address);
