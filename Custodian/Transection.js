@@ -2,60 +2,60 @@ const bitcoin = require("bitcore-lib");
 const axios = require("axios");
 const crypto = require("crypto");
 
-// function createTransection(pk) {
-//   // const verifyScriptHash = bitcoin.crypto.Hash.sha256ripemd160(prova);
-//   // const addressMoney = bitcoin.Address.fromScriptHash(verifyScriptHash, bitcoin.Networks.testnet);
-//   // console.log(verifyAddress.toString("hex"));
+function createTransection(pk) {
+  // const verifyScriptHash = bitcoin.crypto.Hash.sha256ripemd160(prova);
+  // const addressMoney = bitcoin.Address.fromScriptHash(verifyScriptHash, bitcoin.Networks.testnet);
+  // console.log(verifyAddress.toString("hex"));
 
-//   bitcoin.Networks.add(bitcoin.Networks.testnet);
-//   var privateKey = new bitcoin.PrivateKey(pk);
-//   const addressMoney = privateKey.toAddress(bitcoin.Networks.testnet);
-//   // console.log(privateKey);
+  bitcoin.Networks.add(bitcoin.Networks.testnet);
+  var privateKey = new bitcoin.PrivateKey(pk);
+  const addressMoney = privateKey.toAddress(bitcoin.Networks.testnet);
+  // console.log(privateKey);
 
-//   // const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // address a cui inviare soldi
-//   // const address_test = "2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG"; // address a cui inviare soldi
-//   // const address_test = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // address a cui inviare soldi
-//   const address_test = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr"; // address a cui inviare soldi
+  // const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // address a cui inviare soldi
+  // const address_test = "2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG"; // address a cui inviare soldi
+  // const address_test = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // address a cui inviare soldi
+  const address_test = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr"; // address a cui inviare soldi
 
-//   const utxos = {
-//     txId: "9eb4c9af0b93661e23bb93db8076cd86417d630d0c9d4a8d324553c634908866",
-//     outputIndex: 1,
-//     address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
-//     script: bitcoin.Script.buildPublicKeyHashOut(addressMoney),
-//     satoshis: 500000, // satoshi che ha la transazione
-//   };
+  const utxos = {
+    txId: "e9d1557d9fd311d76cff128fb09aff6233358ef0473aa5c187ba0453a9ea52ed",
+    outputIndex: 0,
+    address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
+    script: bitcoin.Script.buildPublicKeyHashOut(addressMoney),
+    satoshis: 500000, // satoshi che ha la transazione
+  };
 
-//   console.log(addressMoney.toString("hex"));
-//   console.log("Match:", addressMoney.toString("hex") === utxos.address);
+  console.log(addressMoney.toString("hex"));
+  console.log("Match:", addressMoney.toString("hex") === utxos.address);
 
-//   const fee = 1000;
-//   var transaction = new bitcoin.Transaction()
-//     .from(utxos) // Feed information about what unspent outputs one can use
-//     .to(address_test, 1000) // Add an output with the given amount of satoshis
-//     .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
-//     .fee(fee)
-//     .sign(privateKey);
+  const fee = 1000;
+  var transaction = new bitcoin.Transaction()
+    .from(utxos) // Feed information about what unspent outputs one can use
+    .to(address_test, 3000) // Add an output with the given amount of satoshis
+    .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
+    .fee(fee)
+    .sign(privateKey);
 
-//   return transaction.serialize();
-// }
+  return transaction.serialize();
+}
 
-// function broadcast(tx) {
-//   console.log(tx);
+function broadcast(tx) {
+  console.log(tx);
 
-//   const transactions = axios
-//     .post("https://mempool.space/testnet4/api/tx", tx, {
-//       // timeout: 50000,
-//       headers: {
-//         "Content-Type": "text/plain",
-//       },
-//     })
-//     .then((responde) => {
-//       console.log("risposta " + responde);
-//     })
-//     .catch((err) => {
-//       console.log("errore" + err);
-//     });
-// }
+  const transactions = axios
+    .post("https://mempool.space/testnet4/api/tx", tx, {
+      // timeout: 50000,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    })
+    .then((responde) => {
+      console.log("risposta " + responde);
+    })
+    .catch((err) => {
+      console.log("errore" + err);
+    });
+}
 
 function doubleHash(s) {
   const first_hash = crypto.createHash("sha256").update(s).digest();
@@ -118,12 +118,12 @@ function doubleHash(s) {
 //   return tx.serialize();
 // }
 
-// function main() {
-//   const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-//   const transection = createTransection1();
-//   // const transection = createTransection(privateKey);
-//   broadcast(transection);
-// }
+function main() {
+  const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
+  // const transection = createTransection1();
+  const transection = createTransection(privateKey);
+  broadcast(transection);
+}
 
 // main();
 
@@ -174,7 +174,6 @@ ouput 2 length 19
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
 const bs58check = require("bs58check");
-const buffer = require("bitcore-lib/lib/util/buffer");
 
 function reverse(tx) {
   return Buffer.from(tx, "hex").reverse().toString("hex");
@@ -183,55 +182,69 @@ function reverse(tx) {
 function main1() {
   const privateKey2 = new bitcoin.PrivateKey("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9", bitcoin.Networks.testnet);
   const publicKey2 = privateKey2.toPublicKey().toString();
-  const publicKeyHash = doubleHash(publicKey2);
-
-  const address = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
-
-  const decoded = bs58check.default.decode(address);
-
+  
+  const destinationAddress = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
+  const decoded = bs58check.default.decode(destinationAddress);
   const redeemScriptAddress = Buffer.from(decoded.slice(1));
 
-  /*
-  Redeem Script: Questo è lo script che devi fornire per "sbloccare" i fondi in una
-  transazione P2SH. Quindi, se qualcuno vuole spendere i fondi destinati all'indirizzo 
-  P2SH, deve fornire il redeem script corretto che è stato utilizzato per creare
-  l'indirizzo P2SH.
-  */
+  const address = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
+  const decodedP2SH = bs58check.default.decode(address);
+  const p2shHash = Buffer.from(decodedP2SH.slice(1));
+  const privateKeyAddressTo = bitcoin.PrivateKey("793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f", bitcoin.Networks.testnet);
+  
+  
+  
+  
+  const publicKeyHash = doubleHash(publicKey2);
+  const scriptAddress = bitcoin.Script.buildPublicKeyHashOut(destinationAddress); // script in address
+  const publicKey = doubleHash(privateKeyAddressTo.toPublicKey().toString("hex")).toString("hex");
+  const scriptAddressFrom = bitcoin.Script.buildPublicKeyHashOut(address);
+  // console.log(scriptAddressFrom.toString());
+
+
+  /// script address from OP_DUP OP_HASH160 20 0xf1384ced7248c3db7fe1950d415772291fafae84 OP_EQUALVERIFY OP_CHECKSIG
 
   const script = Buffer.concat([
     Buffer.from([0x76]),
     Buffer.from([0xa9]),
     Buffer.from([0x14]),
-    publicKeyHash, // hash public key
+    p2shHash, // hash public key
     Buffer.from([0x88]),
     Buffer.from([0xac]),
   ]);
 
-  const redeemScript = doubleHash(script);
-
-  console.log(redeemScript.toString("hex") === redeemScriptAddress.toString("hex"));
+  // script address to OP_DUP OP_HASH160 20 0xd320c24246a9245453aa45238e9456fc8aafbcf5 OP_EQUALVERIFY OP_CHECKSIG
 
   const script1 = Buffer.concat([
+    Buffer.from([0x76]),
     Buffer.from([0xa9]),
     Buffer.from([0x14]),
-    redeemScript, // redeem script
-    Buffer.from([0x87]),
+    redeemScriptAddress,
+    Buffer.from([0x88]),
+    Buffer.from([0xac]),
   ]);
+
+  // d3 20 c2 42 46 a9 24 54 53 aa 45 23 8e 94 56 fc
+  console.log(script);
+
+  console.log(redeemScriptAddress);
 
   const versionTransection = "02000000";
   const numberInput = "01";
-  const hashTXReverse = reverse("9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96");
+  const hashTXReverse = reverse("5d174af9d96b7ae48877cdae2cf11c6466006465ac0fed9fa3bf14dacba4734f");
   const indexPrevOutput = "00000000";
   const emptyScript = "00";
   const sequence = "ffffffff";
   const numberOut = "01";
   // aggiunto 0
-  const valueOutput = reverse("02bc").toString("hex").padEnd(16, "0"); // 700 satoshis
+  const valueOutput = reverse("0a8c").toString("hex").padEnd(16, "0"); // 1500
   const ScriptPubKey = script1;
   const scriptLenghtOutput = ScriptPubKey.length.toString(16).padStart(2, "0");
 
+  console.log("\n\n\n" + script1.toString("hex") + "\n\n\n");
+
   const lookTime = "00000000";
-  // const sigHashCode = "01000000";
+  const sigHashCode = reverse("00000001");
 
   const dataToSign = Buffer.concat([
     Buffer.from(versionTransection, "hex"),
@@ -245,17 +258,32 @@ function main1() {
     Buffer.from(scriptLenghtOutput, "hex"),
     ScriptPubKey, // È già un buffer, non serve convertirlo
     Buffer.from(lookTime, "hex"),
-    // Buffer.from(sigHashCode, "hex"),
+    Buffer.from(sigHashCode, "hex"),
   ]);
+
+  const data1 = crypto.createHash("sha256").update(dataToSign).digest();
+  const data = crypto.createHash("sha256").update(data1).digest();
 
   const keyPair = ec.keyFromPrivate("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9");
-  const sign = keyPair.sign(dataToSign);
+  const sign = keyPair.sign(data);
 
+  // Prima concatena la firma con SIGHASH_ALL
   const signatureWithHashType = Buffer.concat([
     Buffer.from(sign.toDER("hex"), "hex"),
-    // Buffer.from([0x01]), // SIGHASH_ALL
+    //  Buffer.from([0x01])
   ]);
-  const scriptSig = Buffer.concat([Buffer.from([signatureWithHashType.length]), signatureWithHashType, Buffer.from([script.length]), script]);
+
+  // Poi usa la lunghezza totale
+  const scriptSig = Buffer.concat([
+    Buffer.from([signatureWithHashType.length + 1]), // +1 for SIGHASH_ALL
+    signatureWithHashType,
+    Buffer.from([0x01]), // SIGHASH_ALL // capire se serve o no
+    Buffer.from([publicKey2.length / 2]),
+    Buffer.from(publicKey2, "hex"),
+    Buffer.from([script.length]),
+    script,
+  ]);
+
   const scriptLengthInput = scriptSig.length.toString(16).padStart(2, "0");
 
   const rawTx = Buffer.concat([
@@ -275,6 +303,20 @@ function main1() {
   ]);
 
   console.log("la rawtx\n\n" + rawTx.toString("hex") + "\n\n");
+
+  // Prima della concatenazione finale, aggiungi questi log
+  console.log("Version:", versionTransection);
+  console.log("Number of inputs:", numberInput);
+  console.log("Previous TX hash:", hashTXReverse);
+  console.log("Previous output index:", indexPrevOutput);
+  console.log("Script length (input):", scriptLengthInput);
+  console.log("ScriptSig:", scriptSig.toString("hex"));
+  console.log("Sequence:", sequence);
+  console.log("Number of outputs:", numberOut);
+  console.log("Output value:", valueOutput);
+  console.log("Script length (output):", scriptLenghtOutput);
+  console.log("ScriptPubKey:", ScriptPubKey.toString("hex"));
+  console.log("Locktime:", lookTime);
 }
 
 main1();
