@@ -174,9 +174,10 @@ ouput 2 length 19
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
 const bs58check = require("bs58check");
+const buffer = require("bitcore-lib/lib/util/buffer");
 
-function reverseTx(tx) {
-  return tx.split("").reverse().join("");
+function reverse(tx) {
+  return Buffer.from(tx, "hex").reverse().toString("hex");
 }
 
 function main1() {
@@ -188,7 +189,7 @@ function main1() {
 
   const decoded = bs58check.default.decode(address);
 
-  const pubKeyHash = Buffer.from(decoded.slice(1));
+  const redeemScriptAddress = Buffer.from(decoded.slice(1));
 
   /*
   Redeem Script: Questo è lo script che devi fornire per "sbloccare" i fondi in una
@@ -196,16 +197,6 @@ function main1() {
   P2SH, deve fornire il redeem script corretto che è stato utilizzato per creare
   l'indirizzo P2SH.
   */
-
-  const script1 = Buffer.concat([
-    // Buffer.from([0x76]),
-    Buffer.from([0xa9]),
-    Buffer.from([0x14]),
-    pubKeyHash, // redeem  script
-    Buffer.from([0x87]),
-    // Buffer.from([0x88]),
-    // Buffer.from([0xac]),
-  ]);
 
   const script = Buffer.concat([
     Buffer.from([0x76]),
@@ -216,59 +207,109 @@ function main1() {
     Buffer.from([0xac]),
   ]);
 
-  const versionTransection = "01000000";
+  const redeemScript = doubleHash(script);
+
+  console.log(redeemScript.toString("hex") === redeemScriptAddress.toString("hex"));
+
+  const script1 = Buffer.concat([
+    Buffer.from([0xa9]),
+    Buffer.from([0x14]),
+    redeemScript, // redeem script
+    Buffer.from([0x87]),
+  ]);
+
+  const versionTransection = "02000000";
   const numberInput = "01";
-  const hashTXReverse = reverseTx("9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96");
+  const hashTXReverse = reverse("9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96");
   const indexPrevOutput = "00000000";
   const emptyScript = "00";
   const sequence = "ffffffff";
   const numberOut = "01";
-  const valueOutput = "2bc0000000000000"; // 700 satoshis
-  const ScriptPubKey = script1.toString("hex");
-  const scriptLenghtOutput = (ScriptPubKey.length / 2).toString(16);
+  // aggiunto 0
+  const valueOutput = reverse("02bc").toString("hex").padEnd(16, "0"); // 700 satoshis
+  const ScriptPubKey = script1;
+  const scriptLenghtOutput = ScriptPubKey.length.toString(16).padStart(2, "0");
 
   const lookTime = "00000000";
-  const sigHashCode = "01000000";
+  // const sigHashCode = "01000000";
 
   const dataToSign = Buffer.concat([
-    Buffer.from(versionTransection),
-    Buffer.from(numberInput),
-    Buffer.from(hashTXReverse),
-    Buffer.from(indexPrevOutput),
-    Buffer.from(pubKeyHash),
-    // Buffer.from(script.toString("hex")),
-    Buffer.from(sequence),
-    Buffer.from(numberOut),
-    Buffer.from(valueOutput),
-    Buffer.from(scriptLenghtOutput),
-    Buffer.from(ScriptPubKey),
-    Buffer.from(lookTime),
-    // Buffer.from(sigHashCode),
+    Buffer.from(versionTransection, "hex"),
+    Buffer.from(numberInput, "hex"),
+    Buffer.from(hashTXReverse, "hex"),
+    Buffer.from(indexPrevOutput, "hex"),
+    Buffer.from(emptyScript, "hex"),
+    Buffer.from(sequence, "hex"),
+    Buffer.from(numberOut, "hex"),
+    Buffer.from(valueOutput, "hex"),
+    Buffer.from(scriptLenghtOutput, "hex"),
+    ScriptPubKey, // È già un buffer, non serve convertirlo
+    Buffer.from(lookTime, "hex"),
+    // Buffer.from(sigHashCode, "hex"),
   ]);
 
   const keyPair = ec.keyFromPrivate("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9");
   const sign = keyPair.sign(dataToSign);
 
-  const scriptSig = [sign.toDER("hex"), script.toString("hex")].join("");
-  const scriptLengthInput = (scriptSig.length / 2).toString(16);
+  const signatureWithHashType = Buffer.concat([
+    Buffer.from(sign.toDER("hex"), "hex"),
+    // Buffer.from([0x01]), // SIGHASH_ALL
+  ]);
+  const scriptSig = Buffer.concat([Buffer.from([signatureWithHashType.length]), signatureWithHashType, Buffer.from([script.length]), script]);
+  const scriptLengthInput = scriptSig.length.toString(16).padStart(2, "0");
 
   const rawTx = Buffer.concat([
-    Buffer.from(versionTransection),
-    Buffer.from(numberInput),
-    Buffer.from(hashTXReverse),
-    Buffer.from(indexPrevOutput),
-    Buffer.from(scriptLengthInput),
-    Buffer.from(scriptSig),
-    Buffer.from(sequence),
-    Buffer.from(numberOut),
-    Buffer.from(valueOutput),
-    Buffer.from(scriptLenghtOutput),
-    Buffer.from(ScriptPubKey),
-    Buffer.from(lookTime),
-    // Buffer.from(sigHashCode),
+    Buffer.from(versionTransection, "hex"), // Versione della transazione
+    Buffer.from(numberInput, "hex"), // Numero di input
+    Buffer.from(hashTXReverse, "hex"), // Hash della transazione precedente (invertito)
+    Buffer.from(indexPrevOutput, "hex"), // Indice dell'output speso
+    Buffer.from(scriptLengthInput, "hex"), // Lunghezza del scriptSig
+    scriptSig, // ScriptSig per sbloccare i fondi
+    Buffer.from(sequence, "hex"), // Numero di sequenza
+    Buffer.from(numberOut, "hex"), // Numero di output
+    Buffer.from(valueOutput, "hex"), // Valore dell'output
+    Buffer.from(scriptLenghtOutput, "hex"), // Lunghezza del script di blocco (ScriptPubKey)
+    ScriptPubKey, // Script di blocco per l'output
+    Buffer.from(lookTime, "hex"), // Locktime
+    // Buffer.from(sigHashCode, "hex"), // Tipo di firma
   ]);
 
-  console.log("la rawtx\n\n" + rawTx + "\n\n");
+  console.log("la rawtx\n\n" + rawTx.toString("hex") + "\n\n");
 }
 
 main1();
+
+// 02000000
+// 01
+// 80b98c54dbab5106d5a1449f4e5fdb9146deca1d48e93d666c5d9290b7c37a3f
+// 01000000
+// 6b
+// 483045022100f0e32ceb205a5056694611afcffe4c1f0e63e9c57382607045ff2c3d9b5b7b3f0220111f0323e56d7462a9299833166569f1a68e1f5090b49bea64f541c494109c6c012102d0648f06a31d47112f1ff7848c85ce54b772c513bc3337c98f081c19d3dca260
+// ffffffff
+// 02
+// 006d7c4d00000000
+// 19
+// 76a91474d463a046e3175142464740bad692fa0762a93e88ac
+// cad5e5f1b5000000
+// 19
+// 76a914c98fc6bd9c2fd88533f28e6797cfa2a0a0e18ecf88ac
+// 00000000
+
+// 02000000
+// 01
+// 69e435aaf9fb145bea4fb1944cfe8373b240fa4444135e9a473ef092006f0079
+// 00000000
+// 62
+// 473045022100c0e52dbf710c4e7c08bfe9fe81274720c01f8bae2abfe6e6a7326e03c172468a0220523e3392eb73adf78254341611da170264ff4a4a896acfd32e8529f4d16fc7891976a9149ff9f4e7b35c883822d3a0cfc46f6160ca2f740388ac
+// ffffffff
+// 01
+// bc02000000000000
+// // 2bc0000000000000
+// a9
+// 14f1384ced7248c3db7fe1950d415772291fafae8487
+// 00000000
+
+// 0200000001964e53aa9fbf41b5aef41b49c4ef38372b04af444431e5a974e30f2900f600970000000062473045022100976f5699e70a07d9c0d7d649a09c1231732499d6c9c220d5a91563f73e60a3c5022026e5be9cf46b2f698c7465a2e7765df40bf6edfaa1027c1e9335920226e8d6ca1976a9149ff9f4e7b35c883822d3a0cfc46f6160ca2f740388acffffffff01bc02000000000000
+// 17
+// a914f1384ced7248c3db7fe1950d415772291fafae8487
+// 00000000
