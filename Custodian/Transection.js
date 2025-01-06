@@ -182,40 +182,44 @@ function reverse(tx) {
 function main1() {
   const privateKey2 = new bitcoin.PrivateKey("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9", bitcoin.Networks.testnet);
   const publicKey2 = privateKey2.toPublicKey().toString();
-  
+  const p = doubleHash(publicKey2);
+
   const destinationAddress = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
   const decoded = bs58check.default.decode(destinationAddress);
-  const redeemScriptAddress = Buffer.from(decoded.slice(1));
+  const redeemScriptAddress = decoded.slice(1);
 
   const address = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
   const decodedP2SH = bs58check.default.decode(address);
-  const p2shHash = Buffer.from(decodedP2SH.slice(1));
+  const scriptAddressFrom = bitcoin.Script.buildPublicKeyHashOut(address);
+  console.log(scriptAddressFrom.toString());
+  const p2shHash = Buffer.from(decodedP2SH.slice(1), "hex");
   const privateKeyAddressTo = bitcoin.PrivateKey("793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f", bitcoin.Networks.testnet);
-  
-  
-  
-  
+
   const publicKeyHash = doubleHash(publicKey2);
   const scriptAddress = bitcoin.Script.buildPublicKeyHashOut(destinationAddress); // script in address
+  // console.log("\n\n" + scriptAddress.toString() + "\n\n");
+
   const publicKey = doubleHash(privateKeyAddressTo.toPublicKey().toString("hex")).toString("hex");
-  const scriptAddressFrom = bitcoin.Script.buildPublicKeyHashOut(address);
-  // console.log(scriptAddressFrom.toString());
 
+  // script address from OP_DUP OP_HASH160 20 0xf1384ced7248c3db7fe1950d415772291fafae84 OP_EQUALVERIFY OP_CHECKSIG
 
-  /// script address from OP_DUP OP_HASH160 20 0xf1384ced7248c3db7fe1950d415772291fafae84 OP_EQUALVERIFY OP_CHECKSIG
+  const t = doubleHash("03f6a19b3cf3240dad60914626e293410008821f63fc05add0aaf5803791c27a33");
+  console.log(t);
 
   const script = Buffer.concat([
     Buffer.from([0x76]),
     Buffer.from([0xa9]),
     Buffer.from([0x14]),
-    p2shHash, // hash public key
+    p2shHash, //--------------------s
     Buffer.from([0x88]),
     Buffer.from([0xac]),
   ]);
 
+  console.log("sono qua \n\n" + doubleHash(script).toString("hex") + "\n\n");
+
   // script address to OP_DUP OP_HASH160 20 0xd320c24246a9245453aa45238e9456fc8aafbcf5 OP_EQUALVERIFY OP_CHECKSIG
 
-  const script1 = Buffer.concat([
+  const ScriptPubKey = Buffer.concat([
     Buffer.from([0x76]),
     Buffer.from([0xa9]),
     Buffer.from([0x14]),
@@ -224,36 +228,37 @@ function main1() {
     Buffer.from([0xac]),
   ]);
 
-  // d3 20 c2 42 46 a9 24 54 53 aa 45 23 8e 94 56 fc
-  console.log(script);
+  console.log(ScriptPubKey.toString("hex"));
 
-  console.log(redeemScriptAddress);
-
-  const versionTransection = "02000000";
-  const numberInput = "01";
+  const version = reverse("2".padStart(8, "0"));
+  const tx_in_count = "01";
+  // input
   const hashTXReverse = reverse("5d174af9d96b7ae48877cdae2cf11c6466006465ac0fed9fa3bf14dacba4734f");
-  const indexPrevOutput = "00000000";
-  const emptyScript = "00";
+  const indexPrevOutput = reverse("0".padStart(8, "0"));
+
+  const emptyScript = "76a914" + doubleHash(p.toString("hex")).toString("hex") + "88ac";
+  const emptyScriptLenght = emptyScript.length.toString(16);
   const sequence = "ffffffff";
-  const numberOut = "01";
+
+  console.log(emptyScript);
+
+  const tx_out_count = "01";
   // aggiunto 0
-  const valueOutput = reverse("0a8c").toString("hex").padEnd(16, "0"); // 1500
-  const ScriptPubKey = script1;
+  const valueOutput = reverse("0a8c").toString("hex").padEnd(16, "0"); // 2700
   const scriptLenghtOutput = ScriptPubKey.length.toString(16).padStart(2, "0");
 
-  console.log("\n\n\n" + script1.toString("hex") + "\n\n\n");
-
-  const lookTime = "00000000";
+  const lookTime = reverse("00000000");
   const sigHashCode = reverse("00000001");
 
   const dataToSign = Buffer.concat([
-    Buffer.from(versionTransection, "hex"),
-    Buffer.from(numberInput, "hex"),
+    Buffer.from(version, "hex"),
+    Buffer.from(tx_in_count, "hex"),
     Buffer.from(hashTXReverse, "hex"),
     Buffer.from(indexPrevOutput, "hex"),
+    Buffer.from(emptyScriptLenght, "hex"),
     Buffer.from(emptyScript, "hex"),
     Buffer.from(sequence, "hex"),
-    Buffer.from(numberOut, "hex"),
+    Buffer.from(tx_out_count, "hex"),
     Buffer.from(valueOutput, "hex"),
     Buffer.from(scriptLenghtOutput, "hex"),
     ScriptPubKey, // È già un buffer, non serve convertirlo
@@ -265,36 +270,30 @@ function main1() {
   const data = crypto.createHash("sha256").update(data1).digest();
 
   const keyPair = ec.keyFromPrivate("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9");
+
   const sign = keyPair.sign(data);
 
-  // Prima concatena la firma con SIGHASH_ALL
-  const signatureWithHashType = Buffer.concat([
-    Buffer.from(sign.toDER("hex"), "hex"),
-    //  Buffer.from([0x01])
-  ]);
+  const signatureWithHashType = Buffer.concat([Buffer.from(sign.toDER("hex"), "hex"), Buffer.from([0x01])]);
 
-  // Poi usa la lunghezza totale
   const scriptSig = Buffer.concat([
-    Buffer.from([signatureWithHashType.length + 1]), // +1 for SIGHASH_ALL
-    signatureWithHashType,
-    Buffer.from([0x01]), // SIGHASH_ALL // capire se serve o no
-    Buffer.from([publicKey2.length / 2]),
-    Buffer.from(publicKey2, "hex"),
-    Buffer.from([script.length]),
-    script,
+    Buffer.from([signatureWithHashType.length]),
+    signatureWithHashType, // ------------------s-
+
+    // Buffer.from([script.length]),
+    // script,
   ]);
 
   const scriptLengthInput = scriptSig.length.toString(16).padStart(2, "0");
 
   const rawTx = Buffer.concat([
-    Buffer.from(versionTransection, "hex"), // Versione della transazione
-    Buffer.from(numberInput, "hex"), // Numero di input
+    Buffer.from(version, "hex"), // Versione della transazione
+    Buffer.from(tx_in_count, "hex"), // Numero di input
     Buffer.from(hashTXReverse, "hex"), // Hash della transazione precedente (invertito)
     Buffer.from(indexPrevOutput, "hex"), // Indice dell'output speso
     Buffer.from(scriptLengthInput, "hex"), // Lunghezza del scriptSig
     scriptSig, // ScriptSig per sbloccare i fondi
     Buffer.from(sequence, "hex"), // Numero di sequenza
-    Buffer.from(numberOut, "hex"), // Numero di output
+    Buffer.from(tx_out_count, "hex"), // Numero di output
     Buffer.from(valueOutput, "hex"), // Valore dell'output
     Buffer.from(scriptLenghtOutput, "hex"), // Lunghezza del script di blocco (ScriptPubKey)
     ScriptPubKey, // Script di blocco per l'output
@@ -303,20 +302,6 @@ function main1() {
   ]);
 
   console.log("la rawtx\n\n" + rawTx.toString("hex") + "\n\n");
-
-  // Prima della concatenazione finale, aggiungi questi log
-  console.log("Version:", versionTransection);
-  console.log("Number of inputs:", numberInput);
-  console.log("Previous TX hash:", hashTXReverse);
-  console.log("Previous output index:", indexPrevOutput);
-  console.log("Script length (input):", scriptLengthInput);
-  console.log("ScriptSig:", scriptSig.toString("hex"));
-  console.log("Sequence:", sequence);
-  console.log("Number of outputs:", numberOut);
-  console.log("Output value:", valueOutput);
-  console.log("Script length (output):", scriptLenghtOutput);
-  console.log("ScriptPubKey:", ScriptPubKey.toString("hex"));
-  console.log("Locktime:", lookTime);
 }
 
 main1();

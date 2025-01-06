@@ -92,11 +92,6 @@ async function P2SH() {
   const publicKeyHash = doubleHash(publicKey);
   console.log("hash public key " + publicKeyHash.toString("hex"));
 
-  /*
-  bisogna controllare il segreto e se è avvenuto il burn dall'altra parte che potrebbe avvenire tramit euna firma da parte del relay 
-  la transazione va nella mempool e aspetta che le condizione (il tempo in questo caso) si verifichino 
-  */
-
   const script = Buffer.concat([
     // Buffer.from([0x63]), // OP_IF
     Buffer.from([0x76]), // OP_DUP
