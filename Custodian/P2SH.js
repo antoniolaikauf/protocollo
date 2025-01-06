@@ -105,7 +105,6 @@ async function P2SH() {
     // Buffer.from([0x68]), // OP_ENDIF
   ]);
 
-
   const hashScript = doubleHash(script);
 
   console.log("hash dello script" + hashScript.toString("hex"));
@@ -154,4 +153,22 @@ hash public key 9ff9f4e7b35c883822d3a0cfc46f6160ca2f7403
 <Buffer 76 a9 14 9f f9 f4 e7 b3 5c 88 38 22 d3 a0 cf c4 6f 61 60 ca 2f 74 03 88 ac>
 rimeped address f1384ced7248c3db7fe1950d415772291fafae84
 2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr
+
+
+
+
+
+
+
+
+
+private key c2c45a7c2b7b5c49d423572a46df18f4a071a174f5766b08c699404286a28384
+public key 034a74d5acb21c1b336c2dd61826c1bce5a735c5c1ae4685a12f83678b590d77cb
+hash public key 13ae912024418b4a8d71e97ff91cf6ad4353ccbf
+hash dello script2e85cadb8d1ebc8700ba2980afd6176132ff62df
+2MwVDMAhEX8WptvMNLRrofm4VY6t6K4j1qg
+
+
+
+
 */
