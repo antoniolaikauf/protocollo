@@ -2,12 +2,13 @@ const axios = require("axios");
 const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 const keccak256 = require("keccak256"); // npm i keccak256
+const ethers = require("ethers");
 
-const addressUsers = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
+const addressUsers = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
 const transectionRaw =
   "02000000014cbcbbe7f06a2d51ace150946691ea4239ee067dc3b81f1a956d183a2723fe6c000000006a47304402206860351004fcbd685d43693be7b05d4c9b57e1a2ce9e7eaa488fe7e7e5460f6d022060c16e210f4188095abb03aa2ea0eb8a6946ba3735adabee096f8fda2bea7c9b012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02e8030000000000001976a91406c0aa6ab779c914b9558cf4a65087fcecff709388ac10ef4b00000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000";
-const amount = 500000; // in satoshi
-const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
+const amount = 2000; // in satoshi
+const privateKey = "191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9";
 
 // transazione dell address
 async function transectionAddress(address) {
@@ -36,6 +37,12 @@ async function validate(txs) {
 }
 
 // validazione output
+
+/*
+OGNI TRANSAZIONE FA PARTE AD UN ADDRESS DIFFERENTE QUINDI NON CI SONO PROBLEMI NEL CONTROLLARE 
+ESSENDO CHE CI SARANNO SEMPRE ADDRESS E FACCIAMO IL CONTROLLO CHE LA TRANSAZIONE SIA AVVENUTA IN QUEL ADDRESS
+*/
+
 function validateOutput(tx, satoshi, address) {
   // console.log(tx.status.block_time, tx.txid);
   tx.vout.forEach((txOutput) => {
@@ -46,6 +53,8 @@ function validateOutput(tx, satoshi, address) {
         address: txOutput.scriptpubkey_address,
         time: tx.status.block_time,
       };
+      console.log(para);
+
       sign(para);
       // console.log("passo");
     }
@@ -79,7 +88,12 @@ function sign(p) {
   console.log("valore di publicKey " + publicKey);
   console.log("firma " + sign.toDER("hex"));
 
+
   // inviare address prima di trasformarlo in bs58 quindi inviarlo ancora quando è rimped160 r s v hashmessage
+}
+
+function Transection() {
+  const provider = new ethers.JsonRpcProvider()
 }
 
 async function main() {

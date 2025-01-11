@@ -243,9 +243,7 @@ function main1() {
   const emptyScript = "76a914" + doubleHash(p.toString("hex")).toString("hex") + "88ac";
   const emptyScriptLenght = emptyScript.length.toString(16);
   const sequence = "ffffffff";
-
-  console.log(emptyScript);
-
+  // output
   const tx_out_count = "01";
   // aggiunto 0
   const valueOutput = reverse("06a4").toString("hex").padEnd(16, "0"); // 1700
