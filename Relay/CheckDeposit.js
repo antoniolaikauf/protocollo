@@ -3,6 +3,8 @@ const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 const keccak256 = require("keccak256"); // npm i keccak256
 const ethers = require("ethers");
+require("dotenv").config({ path: "../.env" });
+const ABI = require("./ABI.json");
 
 const addressUsers = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
 const transectionRaw =
@@ -87,13 +89,24 @@ function sign(p) {
   console.log("valore di privateKey " + privateKey);
   console.log("valore di publicKey " + publicKey);
   console.log("firma " + sign.toDER("hex"));
-
-
+  Transection();
   // inviare address prima di trasformarlo in bs58 quindi inviarlo ancora quando è rimped160 r s v hashmessage
 }
 
-function Transection() {
-  const provider = new ethers.JsonRpcProvider()
+async function Transection() {
+  const PRIVATE_KEY = process.env.PRIVATE_KEY;
+  const API_URL = process.env.API_URL;
+  const PROVIDER = new ethers.JsonRpcProvider(API_URL);
+  const ADDRESS = "0x33C114d4a2916a6FC90E2eb7296aE893d814551b";
+  const SIGNER = new ethers.Wallet(PRIVATE_KEY, PROVIDER);
+  // const signer = await PROVIDER.getSigner();
+  const contract = new ethers.Contract(ADDRESS, ABI, SIGNER);
+  // console.log(contract);
+
+  // const send = await contract.mintToken();
+  // console.log(send);
+  // const receipt = await send.wait();
+  // console.log("Transaction receipt:", receipt);
 }
 
 async function main() {

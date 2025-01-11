@@ -1,0 +1,50 @@
+
+[ 
+    {
+        "inputs": [
+            {
+            "internalType": "bytes20",
+            "name": "_addressBTC",
+            "type": "bytes20"
+            },
+            {
+            "internalType": "uint8",
+            "name": "_v",
+            "type": "uint8"
+            },
+            {
+            "internalType": "bytes32",
+            "name": "_hashMessage",
+            "type": "bytes32"
+            },
+            {
+            "internalType": "bytes32",
+            "name": "_r",
+            "type": "bytes32"
+            },
+            {
+            "internalType": "bytes32",
+            "name": "_s",
+            "type": "bytes32"
+            }
+        ],
+        "name": "signatureVerifier",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "mintToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "burnToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
