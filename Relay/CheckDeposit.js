@@ -8,9 +8,8 @@ require("dotenv").config({ path: "../.env" });
 const abi = require("./ABI.json");
 const privateKey = process.env.PRIVATE_KEY;
 
-const addressUsers = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
-const transectionRaw =
-  "02000000014cbcbbe7f06a2d51ace150946691ea4239ee067dc3b81f1a956d183a2723fe6c000000006a47304402206860351004fcbd685d43693be7b05d4c9b57e1a2ce9e7eaa488fe7e7e5460f6d022060c16e210f4188095abb03aa2ea0eb8a6946ba3735adabee096f8fda2bea7c9b012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02e8030000000000001976a91406c0aa6ab779c914b9558cf4a65087fcecff709388ac10ef4b00000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000";
+// const addressUsers = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
+const addressUsers = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
 const amount = 2000; // in satoshi
 
 // transazione dell address
@@ -58,7 +57,7 @@ function validateOutput(tx, satoshi, address) {
       };
       console.log(para);
       Transection();
-      // sign(para);
+      sign(para);
       // console.log("passo");
     }
   });
@@ -111,36 +110,37 @@ per vedere nodi testnet attivi nslookup testnet-seed.bitcoin.petertodd.org
 https://riptutorial.com/bitcoin/example/26240/request-a-merkle-block-with-bitcore-p2p per merkle roort
 
 
+function sign(p) {
+  var hexMessage = "";
 
+  for (let key in p) {
+    hexMessage += p[key].toString();
+  }
+  const ethMessage = "\x19Ethereum Signed Message:\n" + hexMessage.length + hexMessage;
+  const hashMessage = keccak256(Buffer.from(ethMessage)).toString("hex");
+
+  const privateKey = '97401bd9e0c17c8ffdbd24d7e81141c43b4aa31e914a1ae24d05120d55243ee3'
+  const keyPair = ec.keyFromPrivate(privateKey);
+
+  const publicKey = keyPair.getPublic().encode("hex");
+  const sign = keyPair.sign(hashMessage);
+  // inviare per vedere la firma
+  const createSign = Buffer.concat([
+    Buffer.from(sign.r.toString("hex"), "hex"), // ----------------------
+    Buffer.from(sign.s.toString("hex"), "hex"),
+    Buffer.from([sign.recoveryParam]),
+  ]);
+
+  console.log(createSign.length);
+
+  const v = sign.recoveryParam + 27;
+
+  // inviare address prima di trasformarlo in bs58 quindi inviarlo ancora quando è rimped160 r s v hashmessage
+  // 3db5196434fdab4c0402d7cb4875b3a64c7fee6650561f940fc742ff6aee7569034a1a176ec0f2de6992a3333e127f4057d67604d33fd5eb8d90375c61fa4e95a
+}
 
 // creazione firma
-// function sign(p) {
-//   var hexMessage = "";
 
-//   for (let key in p) {
-//     hexMessage += p[key].toString();
-//   }
-//   const ethMessage = "\x19Ethereum Signed Message:\n" + hexMessage.length + hexMessage;
-//   const hashMessage = keccak256(Buffer.from(ethMessage)).toString("hex");
-
-//   const keyPair = ec.keyFromPrivate(privateKey);
-
-//   const publicKey = keyPair.getPublic().encode("hex");
-//   const sign = keyPair.sign(hashMessage);
-//   const r = "0x" + sign.r.toString("hex");
-//   const s = "0x" + sign.s.toString("hex");
-//   const v = sign.recoveryParam + 27;
-
-//   console.log("valore di r " + r);
-//   console.log("valore di s " + s);
-//   console.log("valore di v " + v);
-//   console.log("address " + addressUsers);
-//   console.log("hashmessaggio " + hashMessage);
-//   console.log("valore di privateKey " + privateKey);
-//   console.log("valore di publicKey " + publicKey);
-//   console.log("firma " + sign.toDER("hex"));
-//   // inviare address prima di trasformarlo in bs58 quindi inviarlo ancora quando è rimped160 r s v hashmessage
-// }
 
 const bitcoin = require("bitcore-lib");
 const bitcoreP2p = require("bitcore-p2p");

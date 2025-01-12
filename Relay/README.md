@@ -9,3 +9,8 @@ RenVM uses the RZL MPC algorithm to produce and return a minting signature to Al
 
 
 https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm 
+
+
+alla validazione c'è un problema essendo che se esegue due transazioni uguali e una di esse è gia stata eseguita e l'altra no allora questa verrà eseguita ancora 
+
+ci facciamo dare la transazione e noi prendiamo l'address a cui ha inviato i soldi e controlliamo se è presente la transazione che ci ha fornito 

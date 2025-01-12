@@ -217,8 +217,9 @@ Nella figura seguente mostra i componenti che si devono sviluppare e quelli che 
 
 ## OBBIETTIVI FINALI
 
-- Permettere trasferimenti da qualsiasi wallet (cold, hot, wallet sui DEX).
 - Facilitare trasferimenti da e verso qualsiasi rete.
 - Offrire un'interfaccia semplice e automatizzata.
 - Decentralizzare completamente il sistema, ponendo la responsabilità sugli utenti.
 - Sviluppare un metodo che consenta il passaggio da una chain A a una chain C tramite una chain B (A → B → C e viceversa), mantenendo la stessa struttura e integrità delle informazioni.
+- permettere di bloccare fiat e utilizzarla sugli exchange decentralizzati (se c'è gente che non vuole essere soggetta a fluttuazioni)
+- permettere di scambiare due token tra due utenti (implementando l'atomic swap)
