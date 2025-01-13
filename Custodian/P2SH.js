@@ -120,32 +120,6 @@ P2SH();
 // https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/11_2_Using_CLTV_in_Scripts.md
 
 /*
-${timeExpired} OP_CHECKLOCKTIMEVERIFY OP_DROP
-const timeExpired = Math.floor(Date.now() / 1000) + 86400 * 7; // 7
-var seconds = new Date().getTime() / 1000;
-const day = Math.round((timeExpired - seconds) / 86400);
-console.log(day);
-
-
-private key b117532395674c64a408d731a1354be8b0f1f8e06a4ce94a0eda126378be2451
-public key 035148e86faa66aa63c2b1562375962bba813658c0bc59a0903dea15aab6ee757
-<Buffer 97 83 40 e8 00 56 9e 32 b1 0f d1 ba c0 5d df ca 28 dd 21 31>
-<Buffer 63 76 a9 14 97 83 40 e8 00 56 9e 32 b1 0f d1 ba c0 5d df ca 28 dd 21 31 88 ac 67 6a 68>
-rimeped address 567593c73a2a029c9e829a02bf4e82b05e3b3611
-address 2N18NxC7uHC36ETaYAjpEeLtG6pJdThB1fz
-
-
-
-
-private key 97401bd9e0c17c8ffdbd24d7e81141c43b4aa31e914a1ae24d05120d55243ee3
-public key 023e00a721085a54d615ed7b3c3f3d7d188ebe7978be49d338a800d25a75b126a
-hash public key 33a85c801ce2b6a4bec5f168eafe52e78a4edf21
-<Buffer 63 76 a9 14 33 a8 5c 80 1c e2 b6 a4 be c5 f1 68 ea fe 52 e7 8a 4e df 21 88 ac 67 6a 68>
-rimeped address a77c5f12e91264efd3aad2a1ebc90e3ec69feaf2
-2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG
-
-
-
 
 private key 191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9
 public key 03f6a19b3cf3240dad60914626e293410008821f63fc05add0aaf5803791c27a33
@@ -155,20 +129,10 @@ rimeped address f1384ced7248c3db7fe1950d415772291fafae84
 2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr
 
 
-
-
-
-
-
-
-
-private key c2c45a7c2b7b5c49d423572a46df18f4a071a174f5766b08c699404286a28384
-public key 034a74d5acb21c1b336c2dd61826c1bce5a735c5c1ae4685a12f83678b590d77cb
-hash public key 13ae912024418b4a8d71e97ff91cf6ad4353ccbf
-hash dello script2e85cadb8d1ebc8700ba2980afd6176132ff62df
-2MwVDMAhEX8WptvMNLRrofm4VY6t6K4j1qg
-
-
-
-
+private key: 793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f, master chain: b2c832d167457da44eaf72ec946e5b9e94a0151f927680528e9b9775000779ec
+chiave pubblica: 04ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7
+chiave pubblica compressa:03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
+punto x in SECP256k1: 03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
+punto y in SECP256k1: 64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7
+ADDRESS: b'mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN'
 */

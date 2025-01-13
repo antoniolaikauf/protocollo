@@ -1,20 +1,138 @@
 const bitcoin = require("bitcore-lib");
 const axios = require("axios");
 const crypto = require("crypto");
-const bs58check1 = require("bs58check");
+const bs58check = require("bs58check");
+const EC = require("elliptic").ec; // dipendenza da installare
+const ec = new EC("secp256k1");
+
+const address_testFrom = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
+const address_testTo = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
+const inputIndex = 1;
+const transaction = "0135207e916986769a092c18c89a10eee1bbc811d4da2353418f640bc373b904";
+const amount = "6a4";
+const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
+
+class Transaction {
+  constructor(addressTo, addressFrom, inputIndex, transaction, amount) {
+    this.addressFrom = addressFrom;
+    this.addressTo = addressTo;
+    this.amount = this.valueOutput(amount).padEnd(16, "0");
+    this.amountInput = Buffer.from([0x01]);
+    this.inputIndex = reverse(inputIndex.toString().padStart(8, "0"));
+    this.transaction = reverse(transaction);
+    this.version = reverse("1".padStart(8, "0"));
+    this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
+    this.emptyScript = this.reedem("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN");
+    this.sequenza = Buffer.from("ffffffff", "hex");
+    this.lenghtOutput = Buffer.from([0x01]);
+    this.scriptPubKey = this.reedem(addressTo);
+    this.lookTime = reverse("00000000");
+    this.hashCodeType = reverse("00000001");
+    this.ScriptSig = this.scriptSig();
+  }
+
+  valueOutput(amount) {
+    let amountBytes = amount;
+    if (amountBytes.length % 2 == 1) amountBytes = amountBytes.padStart(amountBytes.length + 1, "0");
+    return reverse(amountBytes);
+  }
+
+  reverse(p) {
+    return Buffer.from(p, "hex").reverse().join("");
+  }
+
+  reedem(address) {
+    const decoded = bs58check.default.decode(address);
+    const redeemScriptAddress = decoded.slice(1);
+    return this.script(redeemScriptAddress);
+  }
+
+  script(bytes) {
+    const S = Buffer.concat([
+      Buffer.from([0x76]), // ---------------------
+      Buffer.from([0xa9]),
+      Buffer.from(bytes, "hex"), // correggere perchè messa a caso
+      Buffer.from([0x88]),
+      Buffer.from([0xac]),
+    ]);
+    return S;
+  }
+
+  doubleHash(dataToHash) {
+    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
+  }
+
+  createData() {
+    const data = Buffer.concat([
+      Buffer.from(this.version, "hex"),
+      this.amountInput, //----------------------
+      Buffer.from(this.transaction, "hex"),
+      Buffer.from(this.inputIndex, "hex"),
+      this.LenghtScriptSig,
+      this.emptyScript,
+      this.sequenza,
+      this.lenghtOutput,
+      Buffer.from(this.amount, "hex"),
+      this.lenghtOutput,
+      this.scriptPubKey,
+      Buffer.from(this.lookTime, "hex"),
+      Buffer.from(this.hashCodeType, "hex"),
+    ]);
+    return data;
+  }
+
+  sign(pK) {
+    const dataToSign = this.doubleHash(this.createData());
+    const keyPair = ec.keyFromPrivate(pK);
+    return keyPair.sign(dataToSign).toDER("hex") + "01";
+  }
+
+  createTransactions() {
+    const data = Buffer.concat([
+      Buffer.from(this.version, "hex"),
+      this.amountInput, //----------------------
+      Buffer.from(this.transaction, "hex"),
+      Buffer.from(this.inputIndex, "hex"),
+      Buffer.from(this.ScriptSig.length.toString()),
+      this.ScriptSig,
+      this.sequenza,
+      this.lenghtOutput,
+      Buffer.from(this.amount, "hex"),
+      this.lenghtOutput,
+      this.scriptPubKey,
+      Buffer.from(this.lookTime, "hex"),
+    ]);
+    return data;
+  }
+
+  scriptSig() {
+    const publicKeyNotCompress =
+      "04ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7";
+    const sign = Buffer.from(this.sign(privateKey), "hex");
+    const script = Buffer.concat([
+      Buffer.from(sign.length.toString()), // ----------------
+      sign,
+      Buffer.from(publicKeyNotCompress.length.toString()),
+      Buffer.from(publicKeyNotCompress, "hex"),
+    ]);
+
+    return script;
+  }
+}
+
+const transaction1 = new Transaction(address_testTo, address_testFrom, inputIndex, transaction, amount);
+
+console.log(transaction1);
+console.log(transaction1.createTransactions().toString("hex"));
+
+//---------------------------------------------------
+// controllare sopra 
+//--------------------------------------------------
 
 function createTransection(pk) {
-  // const verifyScriptHash = bitcoin.crypto.Hash.sha256ripemd160(prova);
-  // const addressMoney = bitcoin.Address.fromScriptHash(verifyScriptHash, bitcoin.Networks.testnet);
-  // console.log(verifyAddress.toString("hex"));
-
   bitcoin.Networks.add(bitcoin.Networks.testnet);
   var privateKey = new bitcoin.PrivateKey(pk);
   const addressMoney = privateKey.toAddress(bitcoin.Networks.testnet);
-  // console.log(privateKey);
-
-  // const address_test = "mg8f9rN1NWM9ZGzNgnXHr1QoV4XzzhPYEF"; // address a cui inviare soldi
-  // const address_test = "2N8Wopo3ro4KJ91dp2FBC5UPfjx3fUw7dmG"; // address a cui inviare soldi
   // const address_test = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // address a cui inviare soldi
   const address_test = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr"; // address a cui inviare soldi
   // const address_test = "2MwVDMAhEX8WptvMNLRrofm4VY6t6K4j1qg"; // address a cui inviare soldi
@@ -133,53 +251,14 @@ function main() {
 
 // main();
 
-// */
-// // https://github.com/bitpay/bitcore-lib/blob/master/docs/examples.md
-
-// // https://medium.com/@nagasha/how-to-build-and-broadcast-a-bitcoin-transaction-using-bitcoinjs-bitcoinjs-lib-on-testnet-2d9c8ac725d6
-
-// // https://faucet.testnet4.dev/
-
-// /*
-// mettere soldi su address mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN
-
-// transazione c22cd889dbf88ce536b929fe35392333481e45621281d21af1c55350ad4d780d
-
-// private key: 793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f, master chain: b2c832d167457da44eaf72ec946e5b9e94a0151f927680528e9b9775000779ec
-// chiave pubblica: 04ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7
-// chiave pubblica compressa:03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
-// punto x in SECP256k1: 03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
-// punto y in SECP256k1: 64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7
-// ADDRESS: b'mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN'
-
 /*
-291fafae8487509907000000000
-76a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
-version 02000000
-input count  01
-hash tx reverse 66889034c65345328d4a9d0c0d637d4186cd7680db93bb231e66930bafc9b49e01
-index transection 000000
-script size 6b
-script della firma 483045022100bfb9fb765d30d70582c7d5e22aecd93f6253f0545cb456ec6e82ab0e477c4fbf022039ce8e3a9046fa85a88e0f332a96fe97d88076aeb46cfef6b4e2a5c1bb4719e1012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760
-Input 1 sequence effffffff
-output count 02
-output value 1 e803000000000000
-public key script lenght 17
-public key script a914f1384ced7248c3db7fe1950d415772 lunga 17 
-output 2 value 
-ouput 2 length 19
+// https://github.com/bitpay/bitcore-lib/blob/master/docs/examples.md
 
+// https://medium.com/@nagasha/how-to-build-and-broadcast-a-bitcoin-transaction-using-bitcoinjs-bitcoinjs-lib-on-testnet-2d9c8ac725d6
 
-02000000
-01
-66889034c65345328d4a9d0c0d637d4186cd7680db93bb231e66930bafc9b49e
-010000
-006b483045022100bfb9fb765d30d70582c7d5e22aecd93f6253f0545cb456ec6e82ab0e477c4fbf022039ce8e3a9046fa85a88e0f332a96fe97d88076aeb46cfef6b4e2a5c1bb4719e1012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02e80300000000000017a914f1384ced7248c3db7fe1950d415772291fafae848750990700000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
+// https://faucet.testnet4.dev/
+
 */
-
-const EC = require("elliptic").ec; // dipendenza da installare
-const ec = new EC("secp256k1");
-const bs58check = require("bs58check");
 
 function reverse(tx) {
   return Buffer.from(tx, "hex").reverse().toString("hex");
