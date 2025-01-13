@@ -14,29 +14,29 @@ const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0
 
 class Transaction {
   constructor(addressTo, addressFrom, inputIndex, transaction, amount) {
-    this.addressFrom = addressFrom;
-    this.addressTo = addressTo;
-    this.amount = this.valueOutput(amount).padEnd(16, "0");
-    this.amountInput = Buffer.from([0x01]);
-    this.inputIndex = reverse(inputIndex.toString().padStart(8, "0"));
-    this.transaction = reverse(transaction);
     this.version = reverse("1".padStart(8, "0"));
+    this.amountInput = Buffer.from([0x01]);
+    this.transaction = reverse(transaction);
+    this.inputIndex = reverse(inputIndex.toString().padStart(8, "0"));
     this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
     this.emptyScript = this.reedem("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN");
+    this.ScriptSig = this.scriptSig();
     this.sequenza = Buffer.from("ffffffff", "hex");
-    this.lenghtOutput = Buffer.from([0x01]);
+    this.amountOutput = Buffer.from([0x01]);
+    this.amount = this.valueOutput(amount).padEnd(16, "0");
     this.scriptPubKey = this.reedem(addressTo);
     this.lookTime = reverse("00000000");
     this.hashCodeType = reverse("00000001");
-    this.ScriptSig = this.scriptSig();
+    this.addressFrom = addressFrom;
+    this.addressTo = addressTo;
   }
-
+  // calcolo amount 16 bytes
   valueOutput(amount) {
     let amountBytes = amount;
     if (amountBytes.length % 2 == 1) amountBytes = amountBytes.padStart(amountBytes.length + 1, "0");
     return reverse(amountBytes);
   }
-
+  // reverse data in little -endian
   reverse(p) {
     return Buffer.from(p, "hex").reverse().join("");
   }
@@ -51,29 +51,31 @@ class Transaction {
     const S = Buffer.concat([
       Buffer.from([0x76]), // ---------------------
       Buffer.from([0xa9]),
-      Buffer.from(bytes, "hex"), // correggere perchè messa a caso
+      Buffer.from([0x19]),
+      Buffer.from(bytes, "hex"),
       Buffer.from([0x88]),
       Buffer.from([0xac]),
     ]);
+
     return S;
   }
 
   doubleHash(dataToHash) {
     return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
   }
-
+  // data for sign
   createData() {
     const data = Buffer.concat([
       Buffer.from(this.version, "hex"),
       this.amountInput, //----------------------
       Buffer.from(this.transaction, "hex"),
       Buffer.from(this.inputIndex, "hex"),
-      this.LenghtScriptSig,
+      Buffer.from([0x19]),
       this.emptyScript,
       this.sequenza,
-      this.lenghtOutput,
+      this.amountOutput,
       Buffer.from(this.amount, "hex"),
-      this.lenghtOutput,
+      Buffer.from(this.scriptPubKey.length.toString()),
       this.scriptPubKey,
       Buffer.from(this.lookTime, "hex"),
       Buffer.from(this.hashCodeType, "hex"),
@@ -96,9 +98,9 @@ class Transaction {
       Buffer.from(this.ScriptSig.length.toString()),
       this.ScriptSig,
       this.sequenza,
-      this.lenghtOutput,
+      this.amountOutput,
       Buffer.from(this.amount, "hex"),
-      this.lenghtOutput,
+      Buffer.from(this.scriptPubKey.length.toString()),
       this.scriptPubKey,
       Buffer.from(this.lookTime, "hex"),
     ]);
@@ -126,7 +128,7 @@ console.log(transaction1);
 console.log(transaction1.createTransactions().toString("hex"));
 
 //---------------------------------------------------
-// controllare sopra 
+// controllare sopra
 //--------------------------------------------------
 
 function createTransection(pk) {
