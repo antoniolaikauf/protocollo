@@ -36,7 +36,7 @@ class Transaction {
     if (amountBytes.length % 2 == 1) amountBytes = amountBytes.padStart(amountBytes.length + 1, "0");
     return reverse(amountBytes);
   }
-  // reverse data in little -endian
+  // reverse data in little-endian
   reverse(p) {
     return Buffer.from(p, "hex").reverse().join("");
   }
@@ -69,133 +69,81 @@ class Transaction {
       Buffer.from([0xac]),
     ]);
 
-    // console.log(Buffer.from(bytes).toString("hex"));
-
-    // console.log(S.toString("hex"));
-
     console.log(bitcoin.Script.buildPublicKeyHashOut("2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr").toString());
     return S;
   }
 
   doubleHash(dataToHash) {
-    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest("hex")).digest("hex");
+    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
   }
 
-  // data for sign
+  // Il metodo createData() va bene così com'è, ma rimuovi la transazione hardcoded
   createData() {
-    const tra =
-      "02000000000101d923fcc2b77ce7e286d232885cc224f1f39b6a26cf1742877b38ddb4aaa6dec30000000000fdffffff0347a616c3000000001976a9143b4e6e057ca085de765a1deb7dbf92437ba216b788aca0860100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac0000000000000000196a176661756365742e746573746e6574342e6465762074786e014057b68abd6c2ff5acd88cc30f4b191e38ba900533def654fdf16288ff88e330bc1c24b4a381e563411bcd76dff7f2e22c5706cdb6d0b84da1c338654445ad3e9e00000000";
-    const r = doubleHash(tra);
     const data = Buffer.concat([
+      // Versione
       Buffer.from(this.version, "hex"),
-      this.amountInput, //----------------------
-      Buffer.from(r, "hex"),
+      // Input
+      this.amountInput,
+      Buffer.from(this.transaction, "hex"),
       Buffer.from(this.inputIndex, "hex"),
-      Buffer.from([this.emptyScript.length.toString()]),
+      Buffer.from([this.emptyScript.length]),
       this.emptyScript,
       this.sequenza,
+      // Output
       this.amountOutput,
       Buffer.from(this.amount, "hex"),
-      Buffer.from([this.scriptPubKey.length.toString()]),
+      Buffer.from([this.scriptPubKey.length]),
       this.scriptPubKey,
+      // looktime
       Buffer.from(this.lookTime, "hex"),
+      // hashcode
       Buffer.from(this.hashCodeType, "hex"),
     ]);
-    // console.log(this.amountInput);
-    // console.log(Buffer.from(r, "hex"));
-    // console.log(Buffer.from(this.inputIndex, "hex"));
-    console.log(Buffer.from([this.emptyScript.length.toString()]));
-    // console.log(this.emptyScript);
-    // console.log(this.sequenza);
-    // console.log(this.amountOutput);
-    // console.log(Buffer.from(this.amount, "hex"));
-    // console.log(Buffer.from(this.scriptPubKey.length.toString(16), "hex"));
-    // console.log(this.scriptPubKey);
-    // console.log(Buffer.from(this.lookTime, "hex"));
-    // console.log(Buffer.from(this.hashCodeType, "hex"));
-
     return data;
   }
 
   sign(pK) {
     const dataToSign = this.doubleHash(this.createData());
     const keyPair = ec.keyFromPrivate(pK);
-    return keyPair.sign(dataToSign).toDER("hex");
+    // canonical true aggiunge regole aggiuntive segue regola low-s in cui il valore di s è minore di N/2 (N è l'ordine della curva)
+    const signature = keyPair.sign(dataToSign, { canonical: true });
+    return Buffer.concat([Buffer.from(signature.toDER()), Buffer.from([0x01])]);
   }
 
   createTransactions() {
-    const data = Buffer.concat([
+    return Buffer.concat([
+      // Versione
       Buffer.from(this.version, "hex"),
-      this.amountInput, //----------------------
+      // Input
+      this.amountInput,
       Buffer.from(this.transaction, "hex"),
       Buffer.from(this.inputIndex, "hex"),
-      Buffer.from([this.ScriptSig.length.toString()]),
+      Buffer.from([this.ScriptSig.length]),
       this.ScriptSig,
       this.sequenza,
+      // Output
       this.amountOutput,
       Buffer.from(this.amount, "hex"),
-      Buffer.from([this.scriptPubKey.length.toString()]),
+      Buffer.from([this.scriptPubKey.length]),
       this.scriptPubKey,
+      // Locktime
       Buffer.from(this.lookTime, "hex"),
     ]);
-    return data;
   }
 
   scriptSig() {
     const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
-    // const publicKeyNotCompress =
-    // "04ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7";
-    const signData = Buffer.from(this.sign(privateKey), "hex");
-
-    console.log(signData.length);
-
+    const signData = Buffer.from(this.sign(privateKey));
     const script = Buffer.concat([
-      Buffer.from([signData.length.toString()]), // ----------------
+      Buffer.from([signData.length]), // Lunghezza della firma
       signData,
-      Buffer.from([publicKeyNotCompress.length.toString()]),
+      Buffer.from([Buffer.from(publicKeyNotCompress, "hex").length]), // Lunghezza chiave pubblica
       Buffer.from(publicKeyNotCompress, "hex"),
     ]);
-
     return script;
   }
 }
 
-// 02000000
-// 01
-// 183f7cc7524dd3e666f45e85db99ac83e66547bbd34eb9a1f31f92dab2604bfe
-// 01000000
-// 6a
-// 47
-// 3044022062ef09ee63c91d4f4f969c63582649c5d71ac7df702cca6c2c616a68fe7d831802202459fb4e252169749b4041244d530ba79000aa2c3967bf555b71902aed2dbd5b01
-// 21
-// 03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
-// ffffffff
-// 01d0070000000000
-// 00
-// 17a914f1384ced7248c3db7fe1950d415772291fafae848700000000
-
-/*
-sto sbagliando lo scriptsig 
-
-mia      0200000001183f7cc7524dd3e666f45e85db99ac83e66547bbd34eb9a1f31f92dab2604bfe01000000
-6b4830450220032eae2326cbbfc4e98d48f3107a514edab69f7c902bdb2a35b7e92d1d52d0be022100f22ae5740a7c3ba7c81ec3d91e276c99e2ab69c88f477da80db1e321d4ee7ecb0142
-03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
-ffffffff
-01
-d007000000000000
-17a914f1384ced7248c3db7fe1950d415772291fafae8487
-00000000
-
-libreria 0200000001183f7cc7524dd3e666f45e85db99ac83e66547bbd34eb9a1f31f92dab2604bfe01000000
-6a473044022062ef09ee63c91d4f4f969c63582649c5d71ac7df702cca6c2c616a68fe7d831802202459fb4e252169749b4041244d530ba79000aa2c3967bf555b71902aed2dbd5b0121
-03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
-ffffffff
-01
-d007000000000000
-17a914f1384ced7248c3db7fe1950d415772291fafae8487
-00000000
-
-*/
 const transaction1 = new Transaction(address_testTo, address_testFrom, inputIndex, transaction, amount);
 
 console.log(transaction1);
