@@ -9,18 +9,20 @@ const address_testTo = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
 const address_testFrom = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
 const inputIndex = 1;
 const transaction = "55381cff92c40da53aa88f99c01ac25e596fa39ed3d9a946f5bbd8b0dec778f7";
-const amount = 2000;
+const amountUTXO = 2000;
 const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-const v = 100000;
+const amoutUTXOTransaction = 100000;
+const fee = 1000;
+
 class Transaction {
-  constructor(addressTo, addressFrom, inputIndex, transaction, amount) {
+  constructor(addressTo, addressFrom, inputIndex, transaction, amount, amountTransaction, fee = 1000) {
     this.lookTime = reverse("00000000");
     this.hashCodeType = reverse("00000001");
     this.amountOutput = Buffer.from([0x02]);
     this.amount = this.valueOutput(amount).padEnd(16, "0");
     this.scriptPubKey = this.reedem(addressTo, "P2SH");
     this.addressChange = this.reedem(addressFrom, "P2PKH");
-    this.amountChange = this.valueOutput(100000 - amount - 1000).padEnd(16, "0");
+    this.amountChange = this.valueOutput(amountTransaction - amount - fee).padEnd(16, "0");
     this.sequenza = Buffer.from("ffffffff", "hex");
     this.version = reverse("2".padStart(8, "0"));
     this.amountInput = Buffer.from([0x01]);
@@ -29,14 +31,11 @@ class Transaction {
     this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
     this.emptyScript = this.reedem(addressFrom, "P2PKH");
     this.ScriptSig = this.scriptSig();
-    this.addressTo = addressTo;
   }
   // calcolo amount 16 bytes
   valueOutput(amount) {
     let amountBytes = parseInt(amount, "hex").toString(16);
     if (amountBytes.length % 2 == 1) amountBytes = amountBytes.padStart(amountBytes.length + 1, "0");
-    console.log(reverse(amountBytes));
-
     return reverse(amountBytes);
   }
   // reverse data in little-endian
@@ -74,12 +73,11 @@ class Transaction {
 
     return S;
   }
-  
+
   doubleHash(dataToHash) {
     return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
   }
 
-  // Il metodo createData() va bene così com'è, ma rimuovi la transazione hardcoded
   createData() {
     const data = Buffer.concat([
       // Versione
@@ -105,6 +103,7 @@ class Transaction {
       // hashcode
       Buffer.from(this.hashCodeType, "hex"),
     ]);
+
     return data;
   }
 
@@ -154,7 +153,7 @@ class Transaction {
   }
 }
 
-const transaction1 = new Transaction(address_testTo, address_testFrom, inputIndex, transaction, amount);
+const transaction1 = new Transaction(address_testTo, address_testFrom, inputIndex, transaction, amountUTXO, amoutUTXOTransaction, fee);
 
 // console.log(transaction1);
 console.log("la transazione mia: " + transaction1.createTransactions().toString("hex"));
@@ -193,23 +192,6 @@ function createTransection(pk) {
   console.log("la transazione libreria: " + transaction);
   return transaction.serialize();
 }
-
-// 02000000
-// 01
-// 183f7cc7524dd3e666f45e85db99ac83e66547bbd34eb9a1f31f92dab2604bfe
-// 01000000
-// 6b
-// 48
-// 3045022100d06bba9337779124fe080babbd2d70e4663fad2c78275d389580c96e79087094022049ab12ed01a84425c0beee01461a9f9b2694f42bf226a671188f8253186cdbab012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
-// ffffffff
-// 02
-// d007000000000000
-// 17
-// a914f1384ced7248c3db7fe1950d415772291fafae8487
-// e87a010000000000
-// 19
-// 76a914d320c24246a9245453aa45238e9456fc8aafbcf588ac
-// 00000000
 
 function broadcast(tx) {
   // console.log(tx);
