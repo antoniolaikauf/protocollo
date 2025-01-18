@@ -8,18 +8,20 @@ const ec = new EC("secp256k1");
 const address_testTo = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
 const address_testFrom = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
 const inputIndex = 1;
-const transaction = "fe4b60b2da921ff3a1b94ed3bb4765e683ac99db855ef466e6d34d52c77c3f18";
-const amount = "7d0";
+const transaction = "55381cff92c40da53aa88f99c01ac25e596fa39ed3d9a946f5bbd8b0dec778f7";
+const amount = 2000;
 const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-
+const v = 100000;
 class Transaction {
   constructor(addressTo, addressFrom, inputIndex, transaction, amount) {
     this.lookTime = reverse("00000000");
     this.hashCodeType = reverse("00000001");
-    this.amountOutput = Buffer.from([0x01]);
+    this.amountOutput = Buffer.from([0x02]);
     this.amount = this.valueOutput(amount).padEnd(16, "0");
-    this.sequenza = Buffer.from("ffffffff", "hex");
     this.scriptPubKey = this.reedem(addressTo, "P2SH");
+    this.addressChange = this.reedem(addressFrom, "P2PKH");
+    this.amountChange = this.valueOutput(100000 - amount - 1000).padEnd(16, "0");
+    this.sequenza = Buffer.from("ffffffff", "hex");
     this.version = reverse("2".padStart(8, "0"));
     this.amountInput = Buffer.from([0x01]);
     this.transaction = reverse(transaction);
@@ -27,13 +29,14 @@ class Transaction {
     this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
     this.emptyScript = this.reedem(addressFrom, "P2PKH");
     this.ScriptSig = this.scriptSig();
-    this.addressFrom = addressFrom;
     this.addressTo = addressTo;
   }
   // calcolo amount 16 bytes
   valueOutput(amount) {
-    let amountBytes = amount;
+    let amountBytes = parseInt(amount, "hex").toString(16);
     if (amountBytes.length % 2 == 1) amountBytes = amountBytes.padStart(amountBytes.length + 1, "0");
+    console.log(reverse(amountBytes));
+
     return reverse(amountBytes);
   }
   // reverse data in little-endian
@@ -69,10 +72,9 @@ class Transaction {
       Buffer.from([0xac]),
     ]);
 
-    console.log(bitcoin.Script.buildPublicKeyHashOut("2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr").toString());
     return S;
   }
-
+  
   doubleHash(dataToHash) {
     return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
   }
@@ -94,6 +96,10 @@ class Transaction {
       Buffer.from(this.amount, "hex"),
       Buffer.from([this.scriptPubKey.length]),
       this.scriptPubKey,
+
+      Buffer.from(this.amountChange, "hex"),
+      Buffer.from([this.addressChange.length]),
+      this.addressChange,
       // looktime
       Buffer.from(this.lookTime, "hex"),
       // hashcode
@@ -126,6 +132,10 @@ class Transaction {
       Buffer.from(this.amount, "hex"),
       Buffer.from([this.scriptPubKey.length]),
       this.scriptPubKey,
+
+      Buffer.from(this.amountChange, "hex"),
+      Buffer.from([this.addressChange.length]),
+      this.addressChange,
       // Locktime
       Buffer.from(this.lookTime, "hex"),
     ]);
@@ -146,7 +156,7 @@ class Transaction {
 
 const transaction1 = new Transaction(address_testTo, address_testFrom, inputIndex, transaction, amount);
 
-console.log(transaction1);
+// console.log(transaction1);
 console.log("la transazione mia: " + transaction1.createTransactions().toString("hex"));
 
 //---------------------------------------------------
@@ -162,7 +172,7 @@ function createTransection(pk) {
   // const address_test = "2MwVDMAhEX8WptvMNLRrofm4VY6t6K4j1qg"; // address a cui inviare soldi
 
   const utxos = {
-    txId: "fe4b60b2da921ff3a1b94ed3bb4765e683ac99db855ef466e6d34d52c77c3f18",
+    txId: "55381cff92c40da53aa88f99c01ac25e596fa39ed3d9a946f5bbd8b0dec778f7",
     outputIndex: 1,
     address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
     script: bitcoin.Script.buildPublicKeyHashOut(addressMoney),
@@ -176,13 +186,30 @@ function createTransection(pk) {
   var transaction = new bitcoin.Transaction()
     .from(utxos) // Feed information about what unspent outputs one can use
     .to(address_test, 2000) // Add an output with the given amount of satoshis
-    // .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
-    // .fee(fee)
+    .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
+    .fee(fee)
     .sign(privateKey);
 
   console.log("la transazione libreria: " + transaction);
   return transaction.serialize();
 }
+
+// 02000000
+// 01
+// 183f7cc7524dd3e666f45e85db99ac83e66547bbd34eb9a1f31f92dab2604bfe
+// 01000000
+// 6b
+// 48
+// 3045022100d06bba9337779124fe080babbd2d70e4663fad2c78275d389580c96e79087094022049ab12ed01a84425c0beee01461a9f9b2694f42bf226a671188f8253186cdbab012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
+// ffffffff
+// 02
+// d007000000000000
+// 17
+// a914f1384ced7248c3db7fe1950d415772291fafae8487
+// e87a010000000000
+// 19
+// 76a914d320c24246a9245453aa45238e9456fc8aafbcf588ac
+// 00000000
 
 function broadcast(tx) {
   // console.log(tx);
