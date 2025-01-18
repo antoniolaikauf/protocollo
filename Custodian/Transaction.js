@@ -69,35 +69,50 @@ class Transaction {
       Buffer.from([0xac]),
     ]);
 
+    // console.log(Buffer.from(bytes).toString("hex"));
+
+    // console.log(S.toString("hex"));
+
+    console.log(bitcoin.Script.buildPublicKeyHashOut("2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr").toString());
     return S;
   }
 
   doubleHash(dataToHash) {
-    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
+    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest("hex")).digest("hex");
   }
 
   // data for sign
   createData() {
     const tra =
       "02000000000101d923fcc2b77ce7e286d232885cc224f1f39b6a26cf1742877b38ddb4aaa6dec30000000000fdffffff0347a616c3000000001976a9143b4e6e057ca085de765a1deb7dbf92437ba216b788aca0860100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac0000000000000000196a176661756365742e746573746e6574342e6465762074786e014057b68abd6c2ff5acd88cc30f4b191e38ba900533def654fdf16288ff88e330bc1c24b4a381e563411bcd76dff7f2e22c5706cdb6d0b84da1c338654445ad3e9e00000000";
-    const r = doubleHash(Buffer.from(tra), "hex");
+    const r = doubleHash(tra);
     const data = Buffer.concat([
       Buffer.from(this.version, "hex"),
       this.amountInput, //----------------------
       Buffer.from(r, "hex"),
       Buffer.from(this.inputIndex, "hex"),
-      Buffer.from([0x19]),
+      Buffer.from([this.emptyScript.length.toString()]),
       this.emptyScript,
       this.sequenza,
       this.amountOutput,
       Buffer.from(this.amount, "hex"),
-      Buffer.from(this.scriptPubKey.length.toString(16)),
+      Buffer.from([this.scriptPubKey.length.toString()]),
       this.scriptPubKey,
       Buffer.from(this.lookTime, "hex"),
       Buffer.from(this.hashCodeType, "hex"),
     ]);
-
-    console.log(tra);
+    // console.log(this.amountInput);
+    // console.log(Buffer.from(r, "hex"));
+    // console.log(Buffer.from(this.inputIndex, "hex"));
+    console.log(Buffer.from([this.emptyScript.length.toString()]));
+    // console.log(this.emptyScript);
+    // console.log(this.sequenza);
+    // console.log(this.amountOutput);
+    // console.log(Buffer.from(this.amount, "hex"));
+    // console.log(Buffer.from(this.scriptPubKey.length.toString(16), "hex"));
+    // console.log(this.scriptPubKey);
+    // console.log(Buffer.from(this.lookTime, "hex"));
+    // console.log(Buffer.from(this.hashCodeType, "hex"));
 
     return data;
   }
@@ -105,7 +120,7 @@ class Transaction {
   sign(pK) {
     const dataToSign = this.doubleHash(this.createData());
     const keyPair = ec.keyFromPrivate(pK);
-    return keyPair.sign(dataToSign).toDER("hex") + "01";
+    return keyPair.sign(dataToSign).toDER("hex");
   }
 
   createTransactions() {
@@ -114,12 +129,12 @@ class Transaction {
       this.amountInput, //----------------------
       Buffer.from(this.transaction, "hex"),
       Buffer.from(this.inputIndex, "hex"),
-      Buffer.from(this.ScriptSig.length.toString(16), "hex"),
+      Buffer.from([this.ScriptSig.length.toString()]),
       this.ScriptSig,
       this.sequenza,
       this.amountOutput,
       Buffer.from(this.amount, "hex"),
-      Buffer.from(this.scriptPubKey.length.toString(16), "hex"),
+      Buffer.from([this.scriptPubKey.length.toString()]),
       this.scriptPubKey,
       Buffer.from(this.lookTime, "hex"),
     ]);
@@ -130,18 +145,34 @@ class Transaction {
     const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
     // const publicKeyNotCompress =
     // "04ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7";
-    const sign = Buffer.from(this.sign(privateKey), "hex");
+    const signData = Buffer.from(this.sign(privateKey), "hex");
+
+    console.log(signData.length);
 
     const script = Buffer.concat([
-      Buffer.from(sign.length.toString(16), "hex"), // ----------------
-      sign,
-      Buffer.from(publicKeyNotCompress.length.toString(16), "hex"),
+      Buffer.from([signData.length.toString()]), // ----------------
+      signData,
+      Buffer.from([publicKeyNotCompress.length.toString()]),
       Buffer.from(publicKeyNotCompress, "hex"),
     ]);
 
     return script;
   }
 }
+
+// 02000000
+// 01
+// 183f7cc7524dd3e666f45e85db99ac83e66547bbd34eb9a1f31f92dab2604bfe
+// 01000000
+// 6a
+// 47
+// 3044022062ef09ee63c91d4f4f969c63582649c5d71ac7df702cca6c2c616a68fe7d831802202459fb4e252169749b4041244d530ba79000aa2c3967bf555b71902aed2dbd5b01
+// 21
+// 03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
+// ffffffff
+// 01d0070000000000
+// 00
+// 17a914f1384ced7248c3db7fe1950d415772291fafae848700000000
 
 /*
 sto sbagliando lo scriptsig 
