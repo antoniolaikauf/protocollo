@@ -13,9 +13,12 @@ const amountUTXO = 2000;
 const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
 const amoutUTXOTransaction = 100000;
 const fee = 1000;
-
+// 0200000001f778c7deb0d8bbf546a9d9d39ea36f595ec21ac0998fa83aa50dc492ff1c38550100000048473044022057d87046563e7a1094168a7d04bc2f016a41434f7fd73c745bc79424ad211f0502204dd1b099f86f5d111f1da019fa582bc747c98d4167e4b8b7781994bda1a426b301ffffffff02d00700000000000017a914f1384ced7248c3db7fe1950d415772291fafae8487e87a0100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
+// 0200000001f778c7deb0d8bbf546a9d9d39ea36f595ec21ac0998fa83aa50dc492ff1c3855010000006a473044022057d87046563e7a1094168a7d04bc2f016a41434f7fd73c745bc79424ad211f0502204dd1b099f86f5d111f1da019fa582bc747c98d4167e4b8b7781994bda1a426b3012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02d00700000000000017a914f1384ced7248c3db7fe1950d415772291fafae8487e87a0100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
 class Transaction {
   constructor(addressTo, addressFrom, inputIndex, transaction, amount, amountTransaction, fee = 1000) {
+    this.addressTo = addressTo;
+    this.addressFrom = addressFrom;
     this.lookTime = reverse("00000000");
     this.hashCodeType = reverse("00000001");
     this.amountOutput = Buffer.from([0x02]);
@@ -31,6 +34,10 @@ class Transaction {
     this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
     this.emptyScript = this.reedem(addressFrom);
     this.ScriptSig = this.scriptSig();
+  }
+
+  doubleHash(dataToHash) {
+    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
   }
 
   typeAddress(address) {
@@ -53,36 +60,27 @@ class Transaction {
     const decoded = bs58check.default.decode(address);
     const redeemScriptAddress = decoded.slice(1);
     const typeAddress = this.typeAddress(address);
-    if (typeAddress == "P2PKH") return this.script(redeemScriptAddress);
-    else if (typeAddress == "P2SH") return this.scriptP2SH(redeemScriptAddress);
+    return this.script(redeemScriptAddress, typeAddress);
   }
 
-  scriptP2SH(bytes) {
-    const S = Buffer.concat([
-      Buffer.from([0xa9]), // ---------------
-      Buffer.from([0x14]), // butta su 20 bytes
-      Buffer.from(bytes, "hex"),
-      Buffer.from([0x87]),
-    ]);
-
-    return S;
-  }
-
-  script(bytes) {
-    const S = Buffer.concat([
-      Buffer.from([0x76]), // ---------------------
-      Buffer.from([0xa9]),
-      Buffer.from([0x14]), // butta su 20 bytes
-      Buffer.from(bytes, "hex"),
-      Buffer.from([0x88]),
-      Buffer.from([0xac]),
-    ]);
-
-    return S;
-  }
-
-  doubleHash(dataToHash) {
-    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
+  script(bytes, address) {
+    if (address == "P2PKH") {
+      return Buffer.concat([
+        Buffer.from([0x76]), // ---------------------
+        Buffer.from([0xa9]),
+        Buffer.from([0x14]), // butta su 20 bytes
+        Buffer.from(bytes, "hex"),
+        Buffer.from([0x88]),
+        Buffer.from([0xac]),
+      ]);
+    } else if (address == "P2SH") {
+      return Buffer.concat([
+        Buffer.from([0xa9]), // ---------------
+        Buffer.from([0x14]), // butta su 20 bytes
+        Buffer.from(bytes, "hex"),
+        Buffer.from([0x87]),
+      ]);
+    }
   }
 
   createData() {
@@ -122,6 +120,30 @@ class Transaction {
     return Buffer.concat([Buffer.from(signature.toDER()), Buffer.from([0x01])]);
   }
 
+  scriptSig() {
+    // qua controlla se stai facendo P2PKH --> P2SH o se stai facendo P2PKH <-- P2SH
+    const scriptAddressType = this.typeAddress(this.addressFrom);
+    const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
+    const signData = Buffer.from(this.sign(privateKey));
+
+    if (scriptAddressType === "P2PKH") {
+      return Buffer.concat([
+        Buffer.from([signData.length]), // Lunghezza della firma
+        signData,
+        Buffer.from([Buffer.from(publicKeyNotCompress, "hex").length]), // Lunghezza chiave pubblica
+        Buffer.from(publicKeyNotCompress, "hex"),
+      ]);
+    } else if (scriptAddressType === "P2SH") {
+      const scriptP2SH = this.reedem(this.addressFrom);
+
+      return Buffer.concat([
+        Buffer.from([signData.length]), // Lunghezza della firma
+        signData,
+        Buffer.from([]),
+      ]);
+    }
+  }
+
   createTransactions() {
     return Buffer.concat([
       // Versione
@@ -138,25 +160,13 @@ class Transaction {
       Buffer.from(this.amount, "hex"),
       Buffer.from([this.scriptPubKey.length]),
       this.scriptPubKey,
-
+      // output change
       Buffer.from(this.amountChange, "hex"),
       Buffer.from([this.addressChange.length]),
       this.addressChange,
       // Locktime
       Buffer.from(this.lookTime, "hex"),
     ]);
-  }
-
-  scriptSig() {
-    const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
-    const signData = Buffer.from(this.sign(privateKey));
-    const script = Buffer.concat([
-      Buffer.from([signData.length]), // Lunghezza della firma
-      signData,
-      Buffer.from([Buffer.from(publicKeyNotCompress, "hex").length]), // Lunghezza chiave pubblica
-      Buffer.from(publicKeyNotCompress, "hex"),
-    ]);
-    return script;
   }
 }
 
