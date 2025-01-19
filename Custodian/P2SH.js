@@ -93,16 +93,10 @@ async function P2SH() {
   console.log("hash public key " + publicKeyHash.toString("hex"));
 
   const script = Buffer.concat([
-    // Buffer.from([0x63]), // OP_IF
-    Buffer.from([0x76]), // OP_DUP
-    Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
-    Buffer.from([0x14]), // length pubKeyHash (20 byte)
-    publicKeyHash, // public key doblue hash
-    Buffer.from([0x88]), // OP_EQUALVERIFY
-    Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
-    // Buffer.from([0x67]), // OP_ELSE
-    // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
-    // Buffer.from([0x68]), // OP_ENDIF
+    Buffer.from([0xa9]), // ---------------
+    Buffer.from([0x14]), // butta su 20 bytes
+    Buffer.from(publicKeyHash, "hex"),
+    Buffer.from([0x87]),
   ]);
 
   const hashScript = doubleHash(script);
@@ -119,6 +113,19 @@ P2SH();
 
 // https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/11_2_Using_CLTV_in_Scripts.md
 
+  // const script = Buffer.concat([
+  //   // Buffer.from([0x63]), // OP_IF
+  //   Buffer.from([0x76]), // OP_DUP
+  //   Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
+  //   Buffer.from([0x14]), // length pubKeyHash (20 byte)
+  //   publicKeyHash, // public key doblue hash
+  //   Buffer.from([0x88]), // OP_EQUALVERIFY
+  //   Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
+  //   // Buffer.from([0x67]), // OP_ELSE
+  //   // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
+  //   // Buffer.from([0x68]), // OP_ENDIF
+// ]);
+  
 /*
 
 private key 191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9
@@ -135,4 +142,11 @@ chiave pubblica compressa:03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb
 punto x in SECP256k1: 03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e
 punto y in SECP256k1: 64c361b1b65b82b2ee9d804f06bb9637e41c785cd7657d85a6259abb1bdc86f7
 ADDRESS: b'mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN'
+
+
+private key 5ea9eaa95f5030b922d2695c43338cc6b8cebc73151620df014cf3b04c4af583
+public key 03740cc1dc1963ad20d96af908035071c9b60ebb4f4c164e97230c5b0644ad0f00
+hash public key 3c999cb3415026cc2b67bbfe628470d1c4f12ed9
+hash dello script 7a51b184a3da21df87df176eb642219156ecd956
+2N4PzHr3DKVA2F9DRfHajHMNhywEtZfdxUj
 */

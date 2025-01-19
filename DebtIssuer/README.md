@@ -12,3 +12,6 @@ ora noi nel controllo che si avvenuta la transazione del blocco di BTC stiamo co
 chi manda i dati non abbia inviato gia un address e un nonce associato ad una transazione, si potrebbe implementare che 
 un oracle guardi sulla blockchain di btc e controlli che i dati inviati non siano vecchi di tot tempo cosi 
 riduciamo ulteriormente il rischio 
+
+
+https://en.bitcoin.it/wiki/Protocol_documentation#tx
