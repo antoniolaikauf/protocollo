@@ -20,8 +20,8 @@ class Transaction {
     this.hashCodeType = reverse("00000001");
     this.amountOutput = Buffer.from([0x02]);
     this.amount = this.valueOutput(amount).padEnd(16, "0");
-    this.scriptPubKey = this.reedem(addressTo, "P2SH");
-    this.addressChange = this.reedem(addressFrom, "P2PKH");
+    this.scriptPubKey = this.reedem(addressTo);
+    this.addressChange = this.reedem(addressFrom);
     this.amountChange = this.valueOutput(amountTransaction - amount - fee).padEnd(16, "0");
     this.sequenza = Buffer.from("ffffffff", "hex");
     this.version = reverse("2".padStart(8, "0"));
@@ -29,8 +29,14 @@ class Transaction {
     this.transaction = reverse(transaction);
     this.inputIndex = reverse(inputIndex.toString().padStart(8, "0"));
     this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
-    this.emptyScript = this.reedem(addressFrom, "P2PKH");
+    this.emptyScript = this.reedem(addressFrom);
     this.ScriptSig = this.scriptSig();
+  }
+
+  typeAddress(address) {
+    // in mainet p2sh inizia con 3 e p2pkh inizia con 1 ora usiamo il testnet
+    if (address.startsWith("m") && address.length === 34) return "P2PKH";
+    else if (address.startsWith("2") && address.length === 35) return "P2SH";
   }
   // calcolo amount 16 bytes
   valueOutput(amount) {
@@ -43,9 +49,10 @@ class Transaction {
     return Buffer.from(p, "hex").reverse().join("");
   }
 
-  reedem(address, typeAddress) {
+  reedem(address) {
     const decoded = bs58check.default.decode(address);
     const redeemScriptAddress = decoded.slice(1);
+    const typeAddress = this.typeAddress(address);
     if (typeAddress == "P2PKH") return this.script(redeemScriptAddress);
     else if (typeAddress == "P2SH") return this.scriptP2SH(redeemScriptAddress);
   }
