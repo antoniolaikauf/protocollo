@@ -41,6 +41,7 @@ function PBKDF2_HMAC(w) {
 
 function eliptic_curve(key) {
   const key_pair = ec.keyFromPrivate(key["masterPrivateKey"]); // chaive privata
+
   const public_key = key_pair.getPublic(); // chiave pubblica
 
   let cordinata_x = public_key.getX().toString(16);
@@ -85,18 +86,25 @@ async function P2SH() {
   const list_words = await words(bits_checksum);
   const key = PBKDF2_HMAC(list_words);
   const { privateKey, publicKey } = eliptic_curve(key);
+  const publicKeyHash = doubleHash(publicKey);
 
   console.log("private key " + privateKey);
   console.log("public key " + publicKey);
 
-  const publicKeyHash = doubleHash(publicKey);
   console.log("hash public key " + publicKeyHash.toString("hex"));
 
+  const keyPair = ec.keyFromPrivate("1edbbd0762c5ecf546714ab9c2b11c3d47a6a6f88ea373807b3a14931456e982");
+  const publicKey2 = keyPair.getPublic(true, "hex");
+  console.log(publicKey2);
+
   const script = Buffer.concat([
-    Buffer.from([0xa9]), // ---------------
-    Buffer.from([0x14]), // butta su 20 bytes
-    Buffer.from(publicKeyHash, "hex"),
-    Buffer.from([0x87]),
+    Buffer.from([0x51]), // ----------------------
+    Buffer.from([0x21]),
+    Buffer.from(publicKey, "hex"),
+    Buffer.from([0x21]),
+    Buffer.from(publicKey2, "hex"),
+    Buffer.from([0x52]),
+    Buffer.from([0xae]),
   ]);
 
   const hashScript = doubleHash(script);
@@ -113,19 +121,19 @@ P2SH();
 
 // https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/11_2_Using_CLTV_in_Scripts.md
 
-  // const script = Buffer.concat([
-  //   // Buffer.from([0x63]), // OP_IF
-  //   Buffer.from([0x76]), // OP_DUP
-  //   Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
-  //   Buffer.from([0x14]), // length pubKeyHash (20 byte)
-  //   publicKeyHash, // public key doblue hash
-  //   Buffer.from([0x88]), // OP_EQUALVERIFY
-  //   Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
-  //   // Buffer.from([0x67]), // OP_ELSE
-  //   // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
-  //   // Buffer.from([0x68]), // OP_ENDIF
+// const script = Buffer.concat([
+//   // Buffer.from([0x63]), // OP_IF
+//   Buffer.from([0x76]), // OP_DUP
+//   Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
+//   Buffer.from([0x14]), // length pubKeyHash (20 byte)
+//   publicKeyHash, // public key doblue hash
+//   Buffer.from([0x88]), // OP_EQUALVERIFY
+//   Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
+//   // Buffer.from([0x67]), // OP_ELSE
+//   // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
+//   // Buffer.from([0x68]), // OP_ENDIF
 // ]);
-  
+
 /*
 
 private key 191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9
