@@ -97,14 +97,15 @@ async function P2SH() {
   const publicKey2 = keyPair.getPublic(true, "hex");
   console.log(publicKey2);
 
+
   const script = Buffer.concat([
-    Buffer.from([0x51]), // ----------------------
+    Buffer.from([0x51]), // OP_1 (firme richieste)
     Buffer.from([0x21]),
-    Buffer.from(publicKey, "hex"),
+    Buffer.from(publicKey, "hex"), // Prima chiave pubblica
     Buffer.from([0x21]),
-    Buffer.from(publicKey2, "hex"),
-    Buffer.from([0x52]),
-    Buffer.from([0xae]),
+    Buffer.from(publicKey2, "hex"), // Seconda chiave pubblica
+    Buffer.from([0x52]), // OP_2 (numero di chiavi pubbliche)
+    Buffer.from([0xae]), // OP_CHECKMULTISIG
   ]);
 
   const hashScript = doubleHash(script);
@@ -120,19 +121,6 @@ P2SH();
 // https://bitcointalk.org/index.php?topic=5229211.0 creare p2sh address
 
 // https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/11_2_Using_CLTV_in_Scripts.md
-
-// const script = Buffer.concat([
-//   // Buffer.from([0x63]), // OP_IF
-//   Buffer.from([0x76]), // OP_DUP
-//   Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
-//   Buffer.from([0x14]), // length pubKeyHash (20 byte)
-//   publicKeyHash, // public key doblue hash
-//   Buffer.from([0x88]), // OP_EQUALVERIFY
-//   Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
-//   // Buffer.from([0x67]), // OP_ELSE
-//   // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
-//   // Buffer.from([0x68]), // OP_ENDIF
-// ]);
 
 /*
 

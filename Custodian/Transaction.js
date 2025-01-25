@@ -5,40 +5,29 @@ const bs58check = require("bs58check");
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
 
-const address_testTo = "2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc";
-const address_testFrom = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
-const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
-const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-const inputIndex = 0;
-const transaction = "42fa1811ed0150bd6c4f45933b2690d39aa20425cfa6685f79a5267df5adc1bb";
-const amountUTXO = 50000;
-const amoutUTXOTransaction = 100000;
-const fee = 1000;
-// 0200000001f778c7deb0d8bbf546a9d9d39ea36f595ec21ac0998fa83aa50dc492ff1c38550100000048473044022057d87046563e7a1094168a7d04bc2f016a41434f7fd73c745bc79424ad211f0502204dd1b099f86f5d111f1da019fa582bc747c98d4167e4b8b7781994bda1a426b301ffffffff02d00700000000000017a914f1384ced7248c3db7fe1950d415772291fafae8487e87a0100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
-// 0200000001f778c7deb0d8bbf546a9d9d39ea36f595ec21ac0998fa83aa50dc492ff1c3855010000006a473044022057d87046563e7a1094168a7d04bc2f016a41434f7fd73c745bc79424ad211f0502204dd1b099f86f5d111f1da019fa582bc747c98d4167e4b8b7781994bda1a426b3012103ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760effffffff02d00700000000000017a914f1384ced7248c3db7fe1950d415772291fafae8487e87a0100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
 class Transaction {
   constructor(addressTo, addressFrom, inputIndex, transaction, amount, amountTransaction, fee = 1000, PrivateKey, PublicKey) {
     this.addressTo = addressTo;
     this.addressFrom = addressFrom;
-    this.lookTime = reverse("00000000");
-    this.hashCodeType = reverse("00000001");
+    this.lookTime = this.reverseData("00000000");
+    this.hashCodeType = this.reverseData("00000001");
     this.amountOutput = Buffer.from([0x02]);
     this.amount = this.valueOutput(amount).padEnd(16, "0");
     this.scriptPubKey = this.reedem(addressTo);
     this.addressChange = this.reedem(addressFrom);
     this.amountChange = this.valueOutput(amountTransaction - amount - fee).padEnd(16, "0");
     this.sequenza = Buffer.from("ffffffff", "hex");
-    this.version = reverse("2".padStart(8, "0"));
+    this.version = this.reverseData("2".padStart(8, "0"));
     this.amountInput = Buffer.from([0x01]);
-    this.transaction = reverse(transaction);
-    this.inputIndex = reverse(inputIndex.toString().padStart(8, "0"));
+    this.transaction = this.reverseData(transaction);
+    this.inputIndex = this.reverseData(inputIndex.toString().padStart(8, "0"));
     this.LenghtScriptSig = Buffer.from([0x19]); // 25 bytes
     this.emptyScript = this.reedem(addressFrom);
     this.ScriptSig = this.scriptSig(PrivateKey, PublicKey);
   }
 
   doubleHash(dataToHash) {
-    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest("hex");
+    return crypto.createHash("sha256").update(crypto.createHash("sha256").update(dataToHash).digest()).digest();
   }
 
   typeAddress(address) {
@@ -50,11 +39,19 @@ class Transaction {
   valueOutput(amount) {
     let amountBytes = parseInt(amount, "hex").toString(16);
     if (amountBytes.length % 2 == 1) amountBytes = amountBytes.padStart(amountBytes.length + 1, "0");
-    return reverse(amountBytes);
+    return this.reverseData(amountBytes);
   }
-  // reverse data in little-endian
-  reverse(p) {
-    return Buffer.from(p, "hex").reverse().join("");
+  // reverseData data in little-endian
+  reverseData(hex) {
+    // Ensure the hex string has an even length
+    if (hex.length % 2 !== 0) {
+      hex = "0" + hex;
+    }
+
+    return hex
+      .match(/.{1,2}/g)
+      .reverse()
+      .join(""); // ---------------
   }
 
   reedem(address) {
@@ -89,6 +86,18 @@ class Transaction {
   }
 
   createData() {
+    const PK = "0394f767fa17b617b9a7f15e11efdb68bd7b2a683f6d8d07284450fbc5ba8106be";
+    const PK2 = "020f3983214311e930033573fec9b9f66b0f39e34973055dfd8e642d2d21cece41";
+
+    const empty = Buffer.concat([
+      Buffer.from([0x51]), // OP_1 (firme richieste)
+      Buffer.from([0x21]),
+      Buffer.from(PK, "hex"), // Prima chiave pubblica
+      Buffer.from([0x21]),
+      Buffer.from(PK2, "hex"), // Seconda chiave pubblica
+      Buffer.from([0x52]), // OP_2 (numero di chiavi pubbliche)
+      Buffer.from([0xae]), // OP_CHECKMULTISIG
+    ]);
     const data = Buffer.concat([
       // Versione
       Buffer.from(this.version, "hex"),
@@ -96,8 +105,8 @@ class Transaction {
       this.amountInput,
       Buffer.from(this.transaction, "hex"),
       Buffer.from(this.inputIndex, "hex"),
-      Buffer.from([this.emptyScript.length]),
-      this.emptyScript,
+      Buffer.from([empty.length]),
+      empty,
       this.sequenza,
       // Output
       this.amountOutput,
@@ -117,7 +126,7 @@ class Transaction {
     return data;
   }
 
-  sign(sk) {
+  signData(sk) {
     const dataToSign = this.doubleHash(this.createData());
     const keyPair = ec.keyFromPrivate(sk);
     // canonical true aggiunge regole aggiuntive segue regola low-s in cui il valore di s è minore di N/2 (N è l'ordine della curva)
@@ -128,7 +137,7 @@ class Transaction {
   scriptSig(SK, PK) {
     // qua controlla se stai facendo P2PKH --> P2SH o se stai facendo P2PKH <-- P2SH
     const scriptAddressType = this.typeAddress(this.addressFrom);
-    const signData = Buffer.from(this.sign(SK));
+    const signData = Buffer.from(this.signData(SK));
 
     if (scriptAddressType === "P2PKH") {
       return Buffer.concat([
@@ -138,37 +147,31 @@ class Transaction {
         Buffer.from(PK, "hex"),
       ]);
     } else if (scriptAddressType === "P2SH") {
-      // const scriptP2SH = this.reedem(this.addressFrom);
       const SK2 = "1edbbd0762c5ecf546714ab9c2b11c3d47a6a6f88ea373807b3a14931456e982";
       const keyPair = ec.keyFromPrivate(SK2);
       const PK2 = keyPair.getPublic(true, "hex");
-
-      // First, sign the transaction data with both private keys
-      const sig1 = Buffer.from(this.sign(SK));
-      const sig2 = Buffer.from(this.sign(SK2));
-
       // Create the redeem script for 2-of-2 multisig
       const redeemScript = Buffer.concat([
-        Buffer.from([0x51]), // OP_1 (
+        Buffer.from([0x51]), // OP_1 (firme richieste)
         Buffer.from([0x21]),
-        Buffer.from(PK, "hex"), // PubKey1 (33 bytes for compressed key)
+        Buffer.from(PK, "hex"), // Prima chiave pubblica
         Buffer.from([0x21]),
-        Buffer.from(PK2, "hex"), // PubKey2
-        Buffer.from([0x52]), // OP_2 (2 keys)
+        Buffer.from(PK2, "hex"), // Seconda chiave pubblica
+        Buffer.from([0x52]), // OP_2 (numero di chiavi pubbliche)
         Buffer.from([0xae]), // OP_CHECKMULTISIG
       ]);
 
+      console.log(redeemScript.toString("hex"));
+      const sig2 = Buffer.from(this.signData(SK2));
       const first_hash = crypto.createHash("sha256").update(redeemScript).digest();
       const scriptHash = crypto.createHash("ripemd160").update(first_hash).digest();
       console.log("                        " + scriptHash.toString("hex"));
 
       // Include both signatures and the redeem script in the scriptSig
       return Buffer.concat([
-        Buffer.from([0x00]), // OP_0 (required due to CHECKMULTISIG bug)
-        Buffer.from([sig1.length]),
-        sig1, // Signature 1
-        // Buffer.from([sig2.length]),
-        // sig2, // Signature 2
+        Buffer.from([0x00]), // OP_0
+        Buffer.from([signData.length]),
+        signData, // Signature 1
         Buffer.from([redeemScript.length]),
         redeemScript, // Redeem script
       ]);
@@ -177,84 +180,67 @@ class Transaction {
 
   createTransactions() {
     return Buffer.concat([
-      // Versione
       Buffer.from(this.version, "hex"),
-      // Input
       this.amountInput,
       Buffer.from(this.transaction, "hex"),
       Buffer.from(this.inputIndex, "hex"),
       Buffer.from([this.ScriptSig.length]),
       this.ScriptSig,
       this.sequenza,
-      // Output
       this.amountOutput,
       Buffer.from(this.amount, "hex"),
       Buffer.from([this.scriptPubKey.length]),
       this.scriptPubKey,
-      // output change
       Buffer.from(this.amountChange, "hex"),
       Buffer.from([this.addressChange.length]),
       this.addressChange,
-      // Locktime
       Buffer.from(this.lookTime, "hex"),
     ]);
   }
 }
 
-const transaction1 = new Transaction(
-  address_testTo,
-  address_testFrom,
-  inputIndex,
-  transaction,
-  amountUTXO,
-  amoutUTXOTransaction,
-  fee,
-  privateKey,
-  publicKeyNotCompress
-);
+const address_testTo = "2NFBf61MFsnYMbsj7ByAXeEcdsD4TVD4ixz";
+const address_testFrom = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
+const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
+const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
+const inputIndex = 1;
+const transaction = "9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96";
+const amountUTXO = 13000;
+const amoutUTXOTransaction = 498000;
+const fee = 1000;
+
+// const transaction1 = new Transaction(
+//   address_testTo,
+//   address_testFrom,
+//   inputIndex,
+//   transaction,
+//   amountUTXO,
+//   amoutUTXOTransaction,
+//   fee,
+//   privateKey,
+//   publicKeyNotCompress
+// );
 
 /*
+      const sig2 = Buffer.from(this.signData(SK2));
 
-01000000
-01
-ffd83c4d05cad30c250a3ceea364e5624c1f69db1952f701c55175f986071f2a
-01000000
-93
-00
-49
-3046022100b193aa16a40f15abbed1846cbd680a916c7c4a99a14a37ed54a9c24717a937a0022100bfb61272c9479443f48b21a3dd1a48d3959244733f9f14d568b43553de5c174d01
-47
-5121022afc20bf379bc96a2f4e9e63ffceb8652b2b6a097f63fbee6ecec2a49a48010e2103a767c7221e9f15f870f1ad9311f5ab937d79fcaeee15bb2c722bca515581b4c052ae
-ffffffff
-0200e1f505000000001976a9143b7d0eba8877614de44eb5d6049094d1d23465fc88ac787a75080000000017a914748284390f9e263a4b766a75d0633c50426eb8758700000000
 
-private key c1cd06feafdd586592ca213a1b1a6d43fe51e26be37ab536e01f71e072198699
-public key 0210433f033ccf466055e44306c642016d899b976b58388a4f0ed24b3885dae600
-hash public key aca6e81452ccb374799c9a288e11b7788f544307
+private key ff168e24ea9b11c950b3482d300da58b2ce97fdfea0e1681184030675fbcd94b
+public key 0394f767fa17b617b9a7f15e11efdb68bd7b2a683f6d8d07284450fbc5ba8106be
+hash public key 2c814d88457271f2f95ec4ed47d05657428c9330
 020f3983214311e930033573fec9b9f66b0f39e34973055dfd8e642d2d21cece41
-hash dello script 661014834ac80e632088e8026e6a2c0871d6d3e2
-2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc
-
-
-inviare soldi ad address  mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN poi da questo address mandarli a 2N646YQJBRKAGJxkqstmYtM9biWApz8wuqD
-e dopo fare transazione
-
-
- private key 5ea9eaa95f5030b922d2695c43338cc6b8cebc73151620df014cf3b04c4af583
- public key 03740cc1dc1963ad20d96af908035071c9b60ebb4f4c164e97230c5b0644ad0f00
- hash public key 3c999cb3415026cc2b67bbfe628470d1c4f12ed9
- hash dello script 7a51b184a3da21df87df176eb642219156ecd956
- 2N4PzHr3DKVA2F9DRfHajHMNhywEtZfdxUj
+hash dello script f0a60e01893bc1be9b25d72ecb0fa288d4b09979
+2NFBf61MFsnYMbsj7ByAXeEcdsD4TVD4ixz
 
 */
 
-const transactionP2SH = "3663b6ab3beb6350ce0ab0485a89df1ca65a96fdded300ffc4afc5afea19bb20";
-const amountUTXOP2SH = 38000;
-const amoutUTXOTransactionP2SH = 50000;
+const transactionP2SH = "509c70be6ecba95fec69abb9d68b81e8b554d72b05bcd719a281fe182cc202e0";
+const amountUTXOP2SH = 11000;
+const amoutUTXOTransactionP2SH = 13000;
 const address_testToP2SH = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
-const address_testFromP2SH = "2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc";
-const privateKeyP2sh = "c1cd06feafdd586592ca213a1b1a6d43fe51e26be37ab536e01f71e072198699";
-const publicKeyP2SHNotCompress = "0210433f033ccf466055e44306c642016d899b976b58388a4f0ed24b3885dae600";
+const address_testFromP2SH = "2NFBf61MFsnYMbsj7ByAXeEcdsD4TVD4ixz";
+const privateKeyP2sh = "ff168e24ea9b11c950b3482d300da58b2ce97fdfea0e1681184030675fbcd94b";
+const publicKeyP2SHNotCompress = "0394f767fa17b617b9a7f15e11efdb68bd7b2a683f6d8d07284450fbc5ba8106be";
 const inputIndexP2SH = 0;
 
 const transactionP = new Transaction(
@@ -270,7 +256,7 @@ const transactionP = new Transaction(
 );
 
 // console.log(transaction1);
-console.log("la transazione mia: " + transaction1.createTransactions().toString("hex"));
+// console.log("la transazione mia: " + transaction1.createTransactions().toString("hex"));
 
 console.log("\n\n");
 console.log("seconda transazione " + transactionP.emptyScript.toString("hex"));
@@ -278,41 +264,10 @@ console.log("scriptpukey " + transactionP.scriptPubKey.toString("hex"));
 
 console.log("la transazioneP2SH mia: " + transactionP.createTransactions().toString("hex"));
 console.log("\n\n");
+
 //---------------------------------------------------
 // controllare sopra
 //--------------------------------------------------
-
-function createTransection(pk) {
-  bitcoin.Networks.add(bitcoin.Networks.testnet);
-  var privateKey = new bitcoin.PrivateKey(pk);
-  const addressMoney = privateKey.toAddress(bitcoin.Networks.testnet);
-  // const address_test = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // address a cui inviare soldi
-  const address_test = "2N3sGiyscxqd3r6DQSbgXT738ZwhUpBqkej"; // address a cui inviare soldi
-  // const address_test = "2MwVDMAhEX8WptvMNLRrofm4VY6t6K4j1qg"; // address a cui inviare soldi
-
-  const utxos = {
-    txId: "d7fea33a641b3387677e741abca827fc17c60fd624893abf06ae2490c5ec5bed",
-    outputIndex: 0,
-    address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
-    script: bitcoin.Script.buildPublicKeyHashOut(addressMoney),
-    satoshis: 100000, // satoshi che ha la transazione
-  };
-
-  // console.log(addressMoney.toString("hex"));
-  // console.log("Match:", addressMoney.toString("hex") === utxos.address);
-
-  const fee = 1000;
-  var transaction = new bitcoin.Transaction()
-    .from(utxos) // Feed information about what unspent outputs one can use
-    .to(address_test, 90000) // Add an output with the given amount of satoshis
-    .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
-    .fee(fee);
-    
-    transaction.sign(privateKey);
-    console.log("la transazione libreria: " + JSON.stringify(utxos));
-
-  return transaction.serialize();
-}
 
 function broadcast(tx) {
   // console.log(tx);
@@ -332,10 +287,9 @@ function broadcast(tx) {
     });
 }
 
-
 function main() {
   const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-  const transection = createTransection1();
+  // const transection = createTransection(privateKey);
   // broadcast(transection);
 }
 
