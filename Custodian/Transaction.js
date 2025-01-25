@@ -5,13 +5,13 @@ const bs58check = require("bs58check");
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
 
-const address_testTo = "2N646YQJBRKAGJxkqstmYtM9biWApz8wuqD";
+const address_testTo = "2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc";
 const address_testFrom = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
 const publicKeyNotCompress = "03ce657273af7b6fc1047fb56436961ab9ed57cacc382eeddf47cb63e0bcef760e";
 const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
 const inputIndex = 0;
-const transaction = "d7fea33a641b3387677e741abca827fc17c60fd624893abf06ae2490c5ec5bed";
-const amountUTXO = 90000;
+const transaction = "42fa1811ed0150bd6c4f45933b2690d39aa20425cfa6685f79a5267df5adc1bb";
+const amountUTXO = 50000;
 const amoutUTXOTransaction = 100000;
 const fee = 1000;
 // 0200000001f778c7deb0d8bbf546a9d9d39ea36f595ec21ac0998fa83aa50dc492ff1c38550100000048473044022057d87046563e7a1094168a7d04bc2f016a41434f7fd73c745bc79424ad211f0502204dd1b099f86f5d111f1da019fa582bc747c98d4167e4b8b7781994bda1a426b301ffffffff02d00700000000000017a914f1384ced7248c3db7fe1950d415772291fafae8487e87a0100000000001976a914d320c24246a9245453aa45238e9456fc8aafbcf588ac00000000
@@ -62,9 +62,6 @@ class Transaction {
     const redeemScriptAddress = decoded.slice(1);
 
     const typeAddress = this.typeAddress(address);
-    // console.log("sono qua " + Buffer.from(redeemScriptAddress, "hex").toString("hex"));
-    // console.log(typeAddress);
-    // console.log("\n\n");
 
     return this.script(redeemScriptAddress, typeAddress);
   }
@@ -144,27 +141,36 @@ class Transaction {
       // const scriptP2SH = this.reedem(this.addressFrom);
       const SK2 = "1edbbd0762c5ecf546714ab9c2b11c3d47a6a6f88ea373807b3a14931456e982";
       const keyPair = ec.keyFromPrivate(SK2);
-      // const sig2 = Buffer.from(this.sign(SK2));
-      const publicKey2 = keyPair.getPublic(true, "hex");
-      console.log(publicKey2);
-      console.log(PK);
+      const PK2 = keyPair.getPublic(true, "hex");
 
-      const script = Buffer.concat([
-        Buffer.from([0x51]), // ----------------------
+      // First, sign the transaction data with both private keys
+      const sig1 = Buffer.from(this.sign(SK));
+      const sig2 = Buffer.from(this.sign(SK2));
+
+      // Create the redeem script for 2-of-2 multisig
+      const redeemScript = Buffer.concat([
+        Buffer.from([0x51]), // OP_1 (
         Buffer.from([0x21]),
-        Buffer.from(PK, "hex"),
+        Buffer.from(PK, "hex"), // PubKey1 (33 bytes for compressed key)
         Buffer.from([0x21]),
-        Buffer.from(publicKey2, "hex"),
-        Buffer.from([0x52]),
-        Buffer.from([0xae]),
+        Buffer.from(PK2, "hex"), // PubKey2
+        Buffer.from([0x52]), // OP_2 (2 keys)
+        Buffer.from([0xae]), // OP_CHECKMULTISIG
       ]);
 
+      const first_hash = crypto.createHash("sha256").update(redeemScript).digest();
+      const scriptHash = crypto.createHash("ripemd160").update(first_hash).digest();
+      console.log("                        " + scriptHash.toString("hex"));
+
+      // Include both signatures and the redeem script in the scriptSig
       return Buffer.concat([
-        Buffer.from([0x00]),
-        Buffer.from([signData.length]), // Lunghezza della firma
-        signData,
-        Buffer.from([script.length]),
-        script,
+        Buffer.from([0x00]), // OP_0 (required due to CHECKMULTISIG bug)
+        Buffer.from([sig1.length]),
+        sig1, // Signature 1
+        // Buffer.from([sig2.length]),
+        // sig2, // Signature 2
+        Buffer.from([redeemScript.length]),
+        redeemScript, // Redeem script
       ]);
     }
   }
@@ -195,7 +201,6 @@ class Transaction {
   }
 }
 
-
 const transaction1 = new Transaction(
   address_testTo,
   address_testFrom,
@@ -210,22 +215,30 @@ const transaction1 = new Transaction(
 
 /*
 
+01000000
+01
+ffd83c4d05cad30c250a3ceea364e5624c1f69db1952f701c55175f986071f2a
+01000000
+93
+00
+49
+3046022100b193aa16a40f15abbed1846cbd680a916c7c4a99a14a37ed54a9c24717a937a0022100bfb61272c9479443f48b21a3dd1a48d3959244733f9f14d568b43553de5c174d01
+47
+5121022afc20bf379bc96a2f4e9e63ffceb8652b2b6a097f63fbee6ecec2a49a48010e2103a767c7221e9f15f870f1ad9311f5ab937d79fcaeee15bb2c722bca515581b4c052ae
+ffffffff
+0200e1f505000000001976a9143b7d0eba8877614de44eb5d6049094d1d23465fc88ac787a75080000000017a914748284390f9e263a4b766a75d0633c50426eb8758700000000
+
+private key c1cd06feafdd586592ca213a1b1a6d43fe51e26be37ab536e01f71e072198699
+public key 0210433f033ccf466055e44306c642016d899b976b58388a4f0ed24b3885dae600
+hash public key aca6e81452ccb374799c9a288e11b7788f544307
+020f3983214311e930033573fec9b9f66b0f39e34973055dfd8e642d2d21cece41
+hash dello script 661014834ac80e632088e8026e6a2c0871d6d3e2
+2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc
+
 
 inviare soldi ad address  mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN poi da questo address mandarli a 2N646YQJBRKAGJxkqstmYtM9biWApz8wuqD
 e dopo fare transazione
 
-
-
- console.log("\n\n");
- console.log("prima transazione " + transaction1.emptyScript);
- console.log("prima transazione " + transaction1.emptyScript);
-
- private key bce11680346d2738c6d8e58e50aabae2c52334cf9649cc40a27cca6892eda5a
- public key 0319985d8417735f8ca958fe75325036ed932531af79c4578e7e2f5d28b5516b2f
- hash public key 67dc1ebe7a0b4ed565415c986c23c37891c16e2b
- hash dello script 8c7ed803c7a77469ee78d88854e677a0c6973756
- 2N646YQJBRKAGJxkqstmYtM9biWApz8wuqD
- 020f3983214311e930033573fec9b9f66b0f39e34973055dfd8e642d2d21cece41
 
  private key 5ea9eaa95f5030b922d2695c43338cc6b8cebc73151620df014cf3b04c4af583
  public key 03740cc1dc1963ad20d96af908035071c9b60ebb4f4c164e97230c5b0644ad0f00
@@ -235,13 +248,13 @@ e dopo fare transazione
 
 */
 
-const transactionP2SH = "f218d541953d43ce5c6e81d31159be96f9b1dac480da50c979c65d40de8cedb7";
+const transactionP2SH = "3663b6ab3beb6350ce0ab0485a89df1ca65a96fdded300ffc4afc5afea19bb20";
 const amountUTXOP2SH = 38000;
-const amoutUTXOTransactionP2SH = 90000;
+const amoutUTXOTransactionP2SH = 50000;
 const address_testToP2SH = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
-const address_testFromP2SH = "2N646YQJBRKAGJxkqstmYtM9biWApz8wuqD";
-const privateKeyP2sh = "bce11680346d2738c6d8e58e50aabae2c52334cf9649cc40a27cca6892eda5a";
-const publicKeyP2SHNotCompress = "0319985d8417735f8ca958fe75325036ed932531af79c4578e7e2f5d28b5516b2f";
+const address_testFromP2SH = "2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc";
+const privateKeyP2sh = "c1cd06feafdd586592ca213a1b1a6d43fe51e26be37ab536e01f71e072198699";
+const publicKeyP2SHNotCompress = "0210433f033ccf466055e44306c642016d899b976b58388a4f0ed24b3885dae600";
 const inputIndexP2SH = 0;
 
 const transactionP = new Transaction(
@@ -256,35 +269,15 @@ const transactionP = new Transaction(
   publicKeyP2SHNotCompress
 );
 
-/*
-02000000
-01
-b7ed8cde405dc679c950da80c4dab1f996be5911d3816e5cce433d9541d518f2
-00000000
-91
-48
-3045022100dd6ff9640d1d17759b4f37935a6a1d520b11c7698063ee9333653273e7b11758022023823a1866dacca9e2fe8c0a854e7a99aef9f7cf5378813c6840d29e61aa746801
-47
-5121022afc20bf379bc96a2f4e9e63ffceb8652b2b6a097f63fbee6ecec2a49a48010e2103a767c7221e9f15f870f1ad9311f5ab937d79fcaeee15bb2c722bca515581b4c052ae
-ffffffff
-02
-7094000000000000
-19
-76a914d320c24246a9245453aa45238e9456fc8aafbcf588ac
-38c7000000000000
-17
-a914748284390f9e263a4b766a75d0633c50426eb87587
-00000000
-*/
-
 // console.log(transaction1);
 console.log("la transazione mia: " + transaction1.createTransactions().toString("hex"));
 
-// console.log("\n\n");
-// console.log("seconda transazione " + transactionP.emptyScript);
+console.log("\n\n");
+console.log("seconda transazione " + transactionP.emptyScript.toString("hex"));
+console.log("scriptpukey " + transactionP.scriptPubKey.toString("hex"));
 
 console.log("la transazioneP2SH mia: " + transactionP.createTransactions().toString("hex"));
-// console.log("\n\n");
+console.log("\n\n");
 //---------------------------------------------------
 // controllare sopra
 //--------------------------------------------------
@@ -344,69 +337,72 @@ function doubleHash(s) {
   return scriptHash;
 }
 
-// function createTransection1() {
-//   const privateKey2 = new bitcoin.PrivateKey("191c609103e968dc71954d68c8fbe19840673827c672a81e645987b8b514b9e9", bitcoin.Networks.testnet);
+function createTransection1() {
+  // bitcoin.Networks.add(bitcoin.Networks.testnet);
+  const privateKeyP2sh = "c1cd06feafdd586592ca213a1b1a6d43fe51e26be37ab536e01f71e072198699";
+  // var privateKey = new bitcoin.PrivateKey(privateKeyP2sh);
+  // const addressMoney = privateKey.toAddress(bitcoin.Networks.testnet);
+  // console.log("ccccccccccccccc    " + addressMoney);
+  const address_test = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // address a cui inviare soldi
+  const PK = "0210433f033ccf466055e44306c642016d899b976b58388a4f0ed24b3885dae600";
+  const SK2 = "1edbbd0762c5ecf546714ab9c2b11c3d47a6a6f88ea373807b3a14931456e982";
+  const keyPair = ec.keyFromPrivate(SK2);
+  const PK2 = keyPair.getPublic(true, "hex");
 
-//   const addressP2SH = new bitcoin.Address("2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr");
+  const redeemScript = Buffer.concat([
+    Buffer.from([0x51]), // OP_1 (
+    Buffer.from([0x21]),
+    Buffer.from(PK, "hex"), // PubKey1 (33 bytes for compressed key)
+    Buffer.from([0x21]),
+    Buffer.from(PK2, "hex"), // PubKey2
+    Buffer.from([0x52]), // OP_2 (2 keys)
+    Buffer.from([0xae]), // OP_CHECKMULTISIG
+  ]);
 
-//   console.log("P2SH Address:", addressP2SH.toString("hex"));
+  const first_hash = crypto.createHash("sha256").update(redeemScript).digest();
+  const scriptHash = crypto.createHash("ripemd160").update(first_hash).digest();
 
-//   // UTXO disponibile
-//   const utxo = {
-//     txId: "9700f600290fe374a9e5314444af042b3738efc4491bf4aeb541bf9faa534e96",
-//     outputIndex: 1,
-//     satoshis: 1000, // 0.001 BTC
-//   };
+  console.log(scriptHash.toString("hex"));
 
-//   const recipientAddress = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN"; // Indirizzo del destinatario
-//   const fee = 200;
+  const utxos = {
+    txId: "3663b6ab3beb6350ce0ab0485a89df1ca65a96fdded300ffc4afc5afea19bb20",
+    outputIndex: 0,
+    address: "2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc",
+    script: bitcoin.Script.buildScriptHashOut(bitcoin.Script(redeemScript)),
+    satoshis: 50000, // satoshi che ha la transazione
+  };
 
-//   const publicKeyHash = doubleHash(privateKey2.toPublicKey().toString("hex"));
+  const fee = 1000;
+  var transaction = new bitcoin.Transaction()
+    .from(utxos, redeemScript) // Feed information about what unspent outputs one can use
+    .to(address_test, 30000) // Add an output with the given amount of satoshis
+    .change("2N2YtB7mj7sYrw8jAtNakhyikCTDu6HRfhc") // Sets up a change address where the rest of the funds will go
+    .fee(fee);
 
-//   const address = "2NFEgHLofKiFz19Sa7eqGAbMkCoa4b1dtcr";
-//   const decodedP2SH = bs58check1.default.decode(address);
-//   const p2shHash = Buffer.from(decodedP2SH.slice(1), "hex");
+  // Private key for signing
+  const privateKey = new bitcoin.PrivateKey(privateKeyP2sh);
+  const privateKey2 = new bitcoin.PrivateKey(SK2);
 
-//   const script = Buffer.concat([
-//     // Buffer.from([0x63]), // OP_IF
-//     Buffer.from([0x76]), // OP_DUP
-//     Buffer.from([0xa9]), // OP_HASH160 The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
-//     Buffer.from([0x14]), // length pubKeyHash (20 byte)
-//     p2shHash, // public key doblue hash
-//     Buffer.from([0x88]), // OP_EQUALVERIFY
-//     Buffer.from([0xac]), // OP_CHECKSIG The signature used by OP_CHECKSIG must be a valid signature for this hash and public key
-//     // Buffer.from([0x67]), // OP_ELSE
-//     // Buffer.from([0x6a]), // OP_RETURN Marks transaction as invalid
-//     // Buffer.from([0x68]), // OP_ENDIF
-//   ]);
+  console.log(transaction);
 
-//   var redeemScript = new bitcoin.Script(script);
-//   console.log("ddddddddddddddd     " + redeemScript.toString());
+  // Sign the transaction with the private key
+  transaction.sign(privateKey);
+  transaction.sign(privateKey2);
 
-//   // Creazione della transazione
-//   const tx = new bitcoin.Transaction()
-//     .from([
-//       {
-//         address: addressP2SH,
-//         txId: utxo.txId,
-//         outputIndex: utxo.outputIndex,
-//         script: script, // Placeholder, usa redeemScript come input
-//         satoshis: utxo.satoshis,
-//       },
-//     ])
-//     .to(recipientAddress, 800) // Importo da inviare (0.0007 BTC)
-//     .change(addressP2SH) // Indirizzo di cambio
-//     .fee(fee);
-//   tx.sign(privateKey2); // Firma con la chiave privata associata
-//   console.log(tx);
+  // // Add signature to the input (P2SH Multisig)
+  // const scriptSig = bitcoin.Script.buildScriptHashIn(redeemScript, [
+  //   Buffer.concat([signature.toDER(), Buffer.from([bitcoin.Transaction.SIGHASH_ALL])]),
+  // ]);
+  // transaction.inputs[0].setScript(scriptSig);
 
-//   //   return tx.serialize();
-// }
+  // console.log("la transazione libreria:  sono uaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa           \n" + transaction.serialize());
+  return transaction.serialize();
+}
 
 function main() {
   const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-  // const transection = createTransection1();
-  const transection = createTransection(privateKey);
+  const transection = createTransection1();
+  // const transection = createTransection(privateKey);
   // broadcast(transection);
 }
 
