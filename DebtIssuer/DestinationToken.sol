@@ -2,7 +2,6 @@
 pragma solidity ^0.8.26;
 contract DestinationToken {
     mapping(bytes20 => bool) private addressWithMoney;
-
     mapping(bytes8 => bytes8) private nonce;
 
     /**

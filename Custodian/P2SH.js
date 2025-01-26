@@ -1,6 +1,6 @@
+const fs = require("fs").promises;
 const crypto = require("crypto");
 const bs58 = require("bs58"); // dipendenza da installare
-const fs = require("fs").promises;
 const EC = require("elliptic").ec; // dipendenza da installare
 const ec = new EC("secp256k1");
 
@@ -53,10 +53,6 @@ function eliptic_curve(key) {
   cordinata_y = prefisso + cordinata_y;
 
   return { privateKey: key_pair.getPrivate().toString("hex"), publicKey: cordinata_x };
-
-  // console.log("cordinata x " + cordinata_x);
-  // console.log("cordinata y " + cordinata_y);
-  // return { chiave_pubblica_x: cordinata_x, chiave_pubblica_y: cordinata_y };
 }
 
 // P2SH PERMETTE DI BLOCCARE BITCOIN IN SPECIFICI ADDRESS
@@ -86,12 +82,9 @@ async function P2SH() {
   const list_words = await words(bits_checksum);
   const key = PBKDF2_HMAC(list_words);
   const { privateKey, publicKey } = eliptic_curve(key);
-  const publicKeyHash = doubleHash(publicKey);
 
   console.log("private key " + privateKey);
   console.log("public key " + publicKey);
-
-  console.log("hash public key " + publicKeyHash.toString("hex"));
 
   const keyPair = ec.keyFromPrivate("1edbbd0762c5ecf546714ab9c2b11c3d47a6a6f88ea373807b3a14931456e982");
   const publicKey2 = keyPair.getPublic(true, "hex");
@@ -102,8 +95,8 @@ async function P2SH() {
     Buffer.from([0x51]), // OP_1 (firme richieste)
     Buffer.from([0x21]),
     Buffer.from(publicKey, "hex"), // Prima chiave pubblica
-    Buffer.from([0x21]),
-    Buffer.from(publicKey2, "hex"), // Seconda chiave pubblica
+    Buffer.from([0x21]), 
+    Buffer.from(publicKey2, "hex"), // Seconda chiave pubblica da ssmartContract 
     Buffer.from([0x52]), // OP_2 (numero di chiavi pubbliche)
     Buffer.from([0xae]), // OP_CHECKMULTISIG
   ]);
@@ -117,10 +110,6 @@ async function P2SH() {
 }
 
 P2SH();
-
-// https://bitcointalk.org/index.php?topic=5229211.0 creare p2sh address
-
-// https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/11_2_Using_CLTV_in_Scripts.md
 
 /*
 
