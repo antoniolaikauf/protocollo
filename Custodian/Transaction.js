@@ -218,10 +218,10 @@ class Transaction {
 const address_testTo = "2Mvx8igTz8ELxmqNrJBgcv6wzThmJGpnRSf";
 const address_testFrom = "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN";
 const privateKey = ["793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f"];
-const inputIndex = 0;
-const transaction = "9cc0008a2c5a189b54adf26b8c4308c2b685c9afbeeb1f5ff64759cb2a3a1f20";
+const inputIndex = 1;
+const transaction = "a5510dee118096c86a5a33102bc1a396865926d09bfe985c5b770cb3461f2bb3";
 const amountUTXO = 13000;
-const amoutUTXOTransaction = 100000;
+const amoutUTXOTransaction = 486000;
 const fee = 1000;
 
 const transaction1 = new Transaction(address_testTo, address_testFrom, inputIndex, transaction, amountUTXO, amoutUTXOTransaction, fee, privateKey);
@@ -270,6 +270,15 @@ console.log("\n\n");
 console.log("la transazioneP2SH mia: " + transactionP.createTransactions().toString("hex"));
 console.log("\n\n");
 
+//------------------------------------------
+// SEND TRANSACTION TO NODE
+//------------------------------------------
+
+const dns = require("dns");
+const net = require("net");
+const socket = new net.Socket();
+const Crypto = require("crypto");
+
 function littleEndian(hex) {
   return hex
     .match(/.{1,2}/g)
@@ -277,48 +286,120 @@ function littleEndian(hex) {
     .join("");
 }
 
-function broadcast(tx) {
-  const dns = require("dns");
-  const net = require("net");
-  const socket = new net.Socket();
-  const Crypto = require("crypto");
-  const magicNuber = "0b110907";
-  const command = "tx"
+function Header(payload, type) {
+  const magicNuber = "1c163f28";
+  const command = type
     .split("")
     .map((char) => char.charCodeAt(0).toString(16))
     .join("")
     .padEnd(24, "0");
 
-  const size = littleEndian(tx.length.toString().padStart(8, "0"));
-  const checksum = Crypto.createHash("sha256").update(Crypto.createHash("sha256").update(tx).digest()).digest("hex");
-  const message = Buffer.concat([
+  const size = littleEndian(payload.length.toString().padStart(8, "0"));
+  const checksum = Crypto.createHash("sha256").update(Crypto.createHash("sha256").update(payload).digest()).digest("hex").slice(0, 8);
+  return Buffer.concat([
     Buffer.from(magicNuber, "hex"),
-    Buffer.from(command, "hex"),
-    Buffer.from(size, "hex"), // ----------------------
-    Buffer.from(checksum.slice(0, 8), "hex"),
-    Buffer.from(tx, "hex"),
+    Buffer.from(command, "hex"), // ------------------------
+    Buffer.from(size, "hex"),
+    Buffer.from(checksum, "hex"),
   ]);
-  console.log(message);
+}
 
+function messageTX(tx) {
+  const bufferTX = Buffer.from(tx, "hex");
+  const header = Header(bufferTX, "tx");
+  return Buffer.concat([header, bufferTX]);
+}
+
+function netAddress(IPv4) {
+  const services = littleEndian("1".padStart(16, "0"));
+  const address = IPv4.split(".")
+    .map((num) => parseInt(num).toString(16).padEnd(2, "0"))
+    .join("");
+  const addressLittleEldian = littleEndian(address);
+
+  const ipv6 = "00000000000000000000FFFF";
+  const port = (18333).toString(16).padStart(4, "0");
+
+  return Buffer.concat([
+    Buffer.from(services, "hex"),
+    Buffer.from(ipv6, "hex"),
+    Buffer.from(address, "hex"), // -------------------
+    Buffer.from(port, "hex"),
+  ]);
+}
+
+function messageVersion() {
+  const versionBTC = littleEndian((70015).toString(16).padStart(8, "0"));
+  const servis = littleEndian("1".padStart(16, "0"));
+  const timestramp = Math.floor(Date.now() / 1000)
+    .toString(16)
+    .padStart(16, "0");
+  const timestrampLittleEldian = littleEndian(timestramp);
+  const addr_recv = netAddress("69.59.18.23").toString("hex");
+  const addr_from = netAddress("192.168.1.8").toString("hex");
+  const nonce = Crypto.randomBytes(8).toString("hex");
+  const sub_version_num = Buffer.from([0x00]);
+  const heigth = littleEndian("0".repeat(8));
+
+  console.log("versione " + versionBTC);
+  console.log("servis " + servis);
+  console.log("timestramp " + timestrampLittleEldian);
+  console.log("addr_recv " + addr_recv);
+  console.log("addr_from " + addr_from);
+  console.log("nonce " + nonce);
+  console.log("sub_version_num " + sub_version_num);
+  console.log("heigth " + heigth);
+
+  const payload = Buffer.concat([
+    Buffer.from(versionBTC, "hex"), // -----------------------
+    Buffer.from(servis, "hex"),
+    Buffer.from(timestrampLittleEldian, "hex"),
+    Buffer.from(addr_recv, "hex"),
+    Buffer.from(addr_from, "hex"),
+    Buffer.from(nonce, "hex"),
+    Buffer.from([0x00]),
+    Buffer.from(heigth),
+  ]);
+
+  return Buffer.concat([Header(payload, "version"), payload]);
+}
+
+function broadcast() {
+  const transection = transaction1.createTransactions().toString("hex");
   // testnet-seed.bitcoin.petertodd.org
   // testnet-seed.bluematt.me
   // testnet-seed.bitcoin.schildbach.de
-  dns.resolve4("testnet-seed.bitcoin.petertodd.org", (err, peers) => {
+
+  dns.resolve4("testnet-seed.bluematt.me", (err, peers) => {
     if (err) {
       console.log("errore nel trovare i peers");
       return;
     }
 
-    const index = Math.floor(Math.random() * peers.length);
-    console.log(peers[index]);
+    const version = messageVersion();
+    // console.log(version);
 
-    socket.connect(18333, "72.211.1.222", () => {
+    const message = messageTX(transection);
+    // console.log(message);
+
+    // const index = Math.floor(Math.random() * peers.length);
+    // console.log(peers[index]);
+
+    socket.connect(18333, "69.59.18.23", () => {
       console.log("Connected to node");
-      socket.write(message);
+      socket.write(version);
     });
 
     socket.on("data", (data) => {
-      console.log(data + "data ricevuti");
+      console.log(data.toString("hex") + "data ricevuti");
+    });
+
+    socket.on("end", () => {
+      console.log("connessione chiusa");
+    });
+
+    socket.on("error", (err) => {
+      console.log("errore " + err);
     });
   });
 
@@ -340,14 +421,14 @@ function broadcast(tx) {
 }
 
 function main() {
-  const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-  const transection = transaction1.createTransactions().toString("hex");
-  broadcast(transection);
+  broadcast();
 }
 
 main();
 
 /*
+
+
 
 // https://github.com/bitpay/bitcore-lib/blob/master/docs/examples.md
 
@@ -356,3 +437,37 @@ main();
 // https://faucet.testnet4.dev/
 
 */
+// "\u5207\u6362\u4e3a\u6298\u7ebf\u56fe",
+// bar: "\u5207\u6362\u4e3a\u67f1\u72b6\u56fe",
+// stack: "\u5207\u6362\u4e3a\u5806\u53e0",
+// tiled: "\u5207\u6362\u4e3a\u5e73\u94fa"
+
+// function prova() {
+//   const bitcoin = require("bitcore-lib");
+//   const pk = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
+//   bitcoin.Networks.add(bitcoin.Networks.testnet);
+//   var privateKey = new bitcoin.PrivateKey(pk);
+//   console.log(privateKey.toString());
+
+//   const addressMoney = privateKey.toAddress(bitcoin.Networks.testnet);
+//   const address_test = "2Mvx8igTz8ELxmqNrJBgcv6wzThmJGpnRSf";
+//   const utxos = {
+//     txId: "7d9dc48b2c1a6323353e5ee5858ceb24af87947766d6572d9f5438ce33b532b0",
+//     outputIndex: 1,
+//     address: "mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN",
+//     script: bitcoin.Script.buildPublicKeyHashOut(addressMoney),
+//     satoshis: 500000, // satoshi che ha la transazione
+//   };
+
+//   const fee = 1000;
+//   var transaction = new bitcoin.Transaction()
+//     .from(utxos) // Feed information about what unspent outputs one can use
+//     .to(address_test, 13000) // Add an output with the given amount of satoshis
+//     .change("mzmJ7eqgfrqvYGbuMNQtsyEQHrbbQ6XkwN") // Sets up a change address where the rest of the funds will go
+//     .fee(fee)
+//     .sign(privateKey);
+
+//   return transaction.serialize();
+// }
+
+// console.log(prova());
