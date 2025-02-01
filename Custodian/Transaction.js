@@ -235,9 +235,6 @@ hash dello script 28a5088f30c8799ac0bd7d4a0317ffdb60fbc2d3
 2Mvx8igTz8ELxmqNrJBgcv6wzThmJGpnRSf
 
 
-      const sig2 = Buffer.from(this.signData(SK2));
-
-
 private key ff168e24ea9b11c950b3482d300da58b2ce97fdfea0e1681184030675fbcd94b
 public key 0394f767fa17b617b9a7f15e11efdb68bd7b2a683f6d8d07284450fbc5ba8106be
 hash public key 2c814d88457271f2f95ec4ed47d05657428c9330
@@ -273,33 +270,85 @@ console.log("\n\n");
 console.log("la transazioneP2SH mia: " + transactionP.createTransactions().toString("hex"));
 console.log("\n\n");
 
+function littleEndian(hex) {
+  return hex
+    .match(/.{1,2}/g)
+    .reverse()
+    .join("");
+}
+
 function broadcast(tx) {
+  const dns = require("dns");
+  const net = require("net");
+  const socket = new net.Socket();
+  const Crypto = require("crypto");
+  const magicNuber = "0b110907";
+  const command = "tx"
+    .split("")
+    .map((char) => char.charCodeAt(0).toString(16))
+    .join("")
+    .padEnd(24, "0");
+
+  const size = littleEndian(tx.length.toString().padStart(8, "0"));
+  const checksum = Crypto.createHash("sha256").update(Crypto.createHash("sha256").update(tx).digest()).digest("hex");
+  const message = Buffer.concat([
+    Buffer.from(magicNuber, "hex"),
+    Buffer.from(command, "hex"),
+    Buffer.from(size, "hex"), // ----------------------
+    Buffer.from(checksum.slice(0, 8), "hex"),
+    Buffer.from(tx, "hex"),
+  ]);
+  console.log(message);
+
+  // testnet-seed.bitcoin.petertodd.org
+  // testnet-seed.bluematt.me
+  // testnet-seed.bitcoin.schildbach.de
+  dns.resolve4("testnet-seed.bitcoin.petertodd.org", (err, peers) => {
+    if (err) {
+      console.log("errore nel trovare i peers");
+      return;
+    }
+
+    const index = Math.floor(Math.random() * peers.length);
+    console.log(peers[index]);
+
+    socket.connect(18333, "72.211.1.222", () => {
+      console.log("Connected to node");
+      socket.write(message);
+    });
+
+    socket.on("data", (data) => {
+      console.log(data + "data ricevuti");
+    });
+  });
+
   // console.log(tx);
 
-  const transactions = axios
-    .post("https://mempool.space/testnet4/api/tx", tx, {
-      // timeout: 50000,
-      headers: {
-        "Content-Type": "text/plain",
-      },
-    })
-    .then((responde) => {
-      console.log("risposta " + responde);
-    })
-    .catch((err) => {
-      console.log("errore" + err);
-    });
+  // const transactions = axios
+  //   .post("https://mempool.space/testnet4/api/tx", tx, {
+  //     // timeout: 50000,
+  //     headers: {
+  //       "Content-Type": "text/plain",
+  //     },
+  //   })
+  //   .then((responde) => {
+  //     console.log("risposta " + responde);
+  //   })
+  //   .catch((err) => {
+  //     console.log("errore" + err);
+  //   });
 }
 
 function main() {
   const privateKey = "793e4754ba6305f53afff74100e0d127ff548e1294955c2296811b6ec7c0be1f";
-  // const transection = createTransection(privateKey);
-  // broadcast(transection);
+  const transection = transaction1.createTransactions().toString("hex");
+  broadcast(transection);
 }
 
 main();
 
 /*
+
 // https://github.com/bitpay/bitcore-lib/blob/master/docs/examples.md
 
 // https://medium.com/@nagasha/how-to-build-and-broadcast-a-bitcoin-transaction-using-bitcoinjs-bitcoinjs-lib-on-testnet-2d9c8ac725d6

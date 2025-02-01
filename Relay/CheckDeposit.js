@@ -93,9 +93,6 @@ main();
 // è stato avvenuto
 
 /*
-testnet-seed.bitcoin.petertodd.org
-testnet-seed.bluematt.me
-testnet-seed.bitcoin.schildbach.de
 
 https://bitnodes.io/
 
