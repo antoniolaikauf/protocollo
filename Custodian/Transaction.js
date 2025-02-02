@@ -286,7 +286,7 @@ function littleEndian(hex) {
     .join("");
 }
 
-// costruzione header  
+// costruzione header
 function Header(payload, type) {
   // const magicNuber = "1c163f28"; // testnet4
   const magicNuber = "f9beb4d9"; // mainet
@@ -307,14 +307,14 @@ function Header(payload, type) {
   ]);
 }
 
-// costruzione messaggio transazione 
+// costruzione messaggio transazione
 function messageTX(tx) {
   const bufferTX = Buffer.from(tx, "hex");
   const header = Header(bufferTX, "tx");
   return Buffer.concat([header, bufferTX]);
 }
 
-// costruzione address per version 
+// costruzione address per version
 function netAddress(IPv4) {
   const services = littleEndian("1".padStart(16, "0"));
   const ipv6 = "00000000000000000000FFFF";
@@ -346,17 +346,7 @@ function messageVersion(node) {
   // const addr_recv = "0".repeat(52);
 
   const nonce = Crypto.randomBytes(8).toString("hex");
-  const sub_version_num = Buffer.from([0x00]);
   const heigth = littleEndian((0).toString(16).padStart(8, "0"));
-
-  console.log("versione " + versionBTC);
-  console.log("servis " + servis);
-  console.log("timestramp " + timestrampLittleEldian);
-  console.log("addr_recv " + addr_recv);
-  console.log("addr_from " + addr_from);
-  console.log("nonce " + nonce);
-  console.log("sub_version_num " + sub_version_num);
-  console.log("heigth " + heigth);
 
   const payload = Buffer.concat([
     Buffer.from(versionBTC, "hex"), // -----------------------
@@ -365,7 +355,7 @@ function messageVersion(node) {
     Buffer.from(addr_recv, "hex"),
     Buffer.from(addr_from, "hex"),
     Buffer.from(nonce, "hex"),
-    Buffer.from([0x00]),
+    Buffer.from([0x00]), // subversion
     Buffer.from(heigth),
   ]);
 
@@ -373,7 +363,6 @@ function messageVersion(node) {
 }
 
 function broadcast() {
-  const transection = transaction1.createTransactions().toString("hex");
   // testnet-seed.bitcoin.petertodd.org
   // testnet-seed.bluematt.me
   // testnet-seed.bitcoin.schildbach.de
@@ -381,31 +370,31 @@ function broadcast() {
 
   // mainet
   // dig A seed.btc.petertodd.org
+
+  const transection = transaction1.createTransactions().toString("hex");
   dns.resolve4("seed.btc.petertodd.org", (err, peers) => {
     if (err) {
       console.log("errore nel trovare i peers");
       return;
     }
     const index = Math.floor(Math.random() * peers.length);
-    const node = peers[index];
+    // const node = peers[index];
+    const node = "88.198.200.200";
 
     const version = messageVersion(node);
-    // console.log(version);
 
     const message = messageTX(transection);
-    // console.log(message);
 
     const verack = Header(Buffer.from("", "hex"), "verack");
-    // console.log(verack);
 
     socket.connect(8333, node, () => {
-      console.log("Connected to node");
+      console.log("Connessione al nodo");
       socket.write(version);
     });
 
     socket.on("data", (data) => {
       const comando = data.slice(4, 16).toString("ascii").replace(/\0/g, "");
-      console.log(data.toString("hex") + " data ricevuti\n" + comando + ' comando ricevuto' );
+      console.log(" Dati ricevuti: " + data.toString("hex")  + " Comando ricevuto: " +  comando );
 
       if (comando === "version") {
         console.log("INVIO DI VERACK");
