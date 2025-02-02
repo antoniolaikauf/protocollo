@@ -287,15 +287,17 @@ function littleEndian(hex) {
 }
 
 function Header(payload, type) {
-  const magicNuber = "1c163f28";
+  // const magicNuber = "1c163f28";
+  const magicNuber = "f9beb4d9";
   const command = type
     .split("")
     .map((char) => char.charCodeAt(0).toString(16))
     .join("")
     .padEnd(24, "0");
 
-  const size = littleEndian(payload.length.toString().padStart(8, "0"));
+  const size = littleEndian(payload.length.toString(16).padStart(8, "0"));
   const checksum = Crypto.createHash("sha256").update(Crypto.createHash("sha256").update(payload).digest()).digest("hex").slice(0, 8);
+
   return Buffer.concat([
     Buffer.from(magicNuber, "hex"),
     Buffer.from(command, "hex"), // ------------------------
@@ -312,13 +314,11 @@ function messageTX(tx) {
 
 function netAddress(IPv4) {
   const services = littleEndian("1".padStart(16, "0"));
-  const address = IPv4.split(".")
-    .map((num) => parseInt(num).toString(16).padEnd(2, "0"))
-    .join("");
-  const addressLittleEldian = littleEndian(address);
-
   const ipv6 = "00000000000000000000FFFF";
-  const port = (18333).toString(16).padStart(4, "0");
+  const address = IPv4.split(".")
+    .map((num) => parseInt(num).toString(16).padStart(2, "0"))
+    .join("");
+  const port = (8333).toString(16).padStart(4, "0");
 
   return Buffer.concat([
     Buffer.from(services, "hex"),
@@ -329,17 +329,20 @@ function netAddress(IPv4) {
 }
 
 function messageVersion() {
-  const versionBTC = littleEndian((70015).toString(16).padStart(8, "0"));
+  const versionBTC = littleEndian((70016).toString(16).padStart(8, "0"));
   const servis = littleEndian("1".padStart(16, "0"));
   const timestramp = Math.floor(Date.now() / 1000)
     .toString(16)
     .padStart(16, "0");
   const timestrampLittleEldian = littleEndian(timestramp);
-  const addr_recv = netAddress("69.59.18.23").toString("hex");
-  const addr_from = netAddress("192.168.1.8").toString("hex");
+  const addr_recv = netAddress("88.198.200.200").toString("hex");
+
+  // const addr_from = netAddress("192.168.1.8").toString("hex");
+  // const addr_recv = "0".repeat(52);
+  const addr_from = "0".repeat(52);
   const nonce = Crypto.randomBytes(8).toString("hex");
   const sub_version_num = Buffer.from([0x00]);
-  const heigth = littleEndian("0".repeat(8));
+  const heigth = littleEndian((881948).toString(16).padStart(8, "0"));
 
   console.log("versione " + versionBTC);
   console.log("servis " + servis);
@@ -369,8 +372,11 @@ function broadcast() {
   // testnet-seed.bitcoin.petertodd.org
   // testnet-seed.bluematt.me
   // testnet-seed.bitcoin.schildbach.de
+  // dig A seed.tbtc.petertodd.org
 
-  dns.resolve4("testnet-seed.bluematt.me", (err, peers) => {
+  // mainet
+  // dig A seed.btc.petertodd.org
+  dns.resolve4("seed.btc.petertodd.org", (err, peers) => {
     if (err) {
       console.log("errore nel trovare i peers");
       return;
@@ -382,10 +388,10 @@ function broadcast() {
     const message = messageTX(transection);
     // console.log(message);
 
-    // const index = Math.floor(Math.random() * peers.length);
-    // console.log(peers[index]);
-
-    socket.connect(18333, "69.59.18.23", () => {
+    const index = Math.floor(Math.random() * peers.length);
+    console.log(peers[index]);
+    //18333, "69.59.18.23"
+    socket.connect(8333, "88.198.200.200", () => {
       console.log("Connected to node");
       socket.write(version);
     });
