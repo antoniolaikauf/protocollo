@@ -70,7 +70,7 @@ class Transaction {
   scriptForSigning(address) {
     if (this.typeAddress(address) === "P2SH") {
       return Buffer.concat([
-        Buffer.from([0x52]), // OP_1 (sign required)
+        Buffer.from([0x52]), // OP_2 (sign required)
         Buffer.from([0x21]),
         Buffer.from(this.publicKey(this.PrivateKey[0]), "hex"), // first publicKey
         Buffer.from([0x21]),
@@ -82,27 +82,29 @@ class Transaction {
       const decoded = bs58check.default.decode(address);
       const bytes = decoded.slice(1);
       return Buffer.concat([
-        Buffer.from([0x76]),
-        Buffer.from([0xa9]),
-        Buffer.from([0x14]),
+        Buffer.from([0x76]), // OP_DUP
+        Buffer.from([0xa9]), // OP_HASH160
+        Buffer.from([0x14]), // LUNGHEZZA BYTES
         Buffer.from(bytes, "hex"),
-        Buffer.from([0x88]),
-        Buffer.from([0xac]),
+        Buffer.from([0x88]), // OP_EQUALVERIFY
+        Buffer.from([0xac]), // OP_CHECKSIG
       ]);
     }
   }
 
   script(bytes, address) {
     if (address == "P2PKH") {
+      // scriptpubkey base dei P22KH
       return Buffer.concat([
-        Buffer.from([0x76]), // ---------------------
-        Buffer.from([0xa9]),
-        Buffer.from([0x14]), // butta su 20 bytes
+        Buffer.from([0x76]), // OP_DUP
+        Buffer.from([0xa9]), // OP_HASH160
+        Buffer.from([0x14]), // LUNGHEZZA BYTES
         Buffer.from(bytes, "hex"),
-        Buffer.from([0x88]),
-        Buffer.from([0xac]),
+        Buffer.from([0x88]), // OP_EQUALVERIFY
+        Buffer.from([0xac]), // OP_CHECKSIG
       ]);
     } else if (address == "P2SH") {
+      // scriptpubkey base dei P2SH
       return Buffer.concat([
         Buffer.from([0xa9]), // ---------------
         Buffer.from([0x14]), // butta su 20 bytes
@@ -165,7 +167,7 @@ class Transaction {
       ]);
     } else if (scriptAddressType === "P2SH") {
       const redeemScript = Buffer.concat([
-        Buffer.from([0x52]), // OP_1 (sign required)
+        Buffer.from([0x52]), // OP_2 (sign required)
         Buffer.from([0x21]),
         Buffer.from(this.publicKey(this.PrivateKey[0]), "hex"), // first publicKey
         Buffer.from([0x21]),
@@ -378,8 +380,8 @@ function broadcast() {
       return;
     }
     const index = Math.floor(Math.random() * peers.length);
-    // const node = peers[index];
-    const node = "88.198.200.200";
+    const node = peers[index];
+    // const node = "88.198.200.200"; // nodo tedesco
 
     const version = messageVersion(node);
 
@@ -394,7 +396,7 @@ function broadcast() {
 
     socket.on("data", (data) => {
       const comando = data.slice(4, 16).toString("ascii").replace(/\0/g, "");
-      console.log(" Dati ricevuti: " + data.toString("hex")  + " Comando ricevuto: " +  comando );
+      console.log(" Dati ricevuti: " + data.toString("hex") + " Comando ricevuto: " + comando);
 
       if (comando === "version") {
         console.log("INVIO DI VERACK");

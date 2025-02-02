@@ -92,7 +92,7 @@ async function P2SH() {
 
 
   const script = Buffer.concat([
-    Buffer.from([0x52]), // OP_1 (firme richieste)
+    Buffer.from([0x52]), // OP_2 (firme richieste)
     Buffer.from([0x21]),
     Buffer.from(publicKey, "hex"), // Prima chiave pubblica
     Buffer.from([0x21]), 
