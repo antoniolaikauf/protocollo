@@ -286,9 +286,10 @@ function littleEndian(hex) {
     .join("");
 }
 
+// costruzione header  
 function Header(payload, type) {
-  // const magicNuber = "1c163f28";
-  const magicNuber = "f9beb4d9";
+  // const magicNuber = "1c163f28"; // testnet4
+  const magicNuber = "f9beb4d9"; // mainet
   const command = type
     .split("")
     .map((char) => char.charCodeAt(0).toString(16))
@@ -306,12 +307,14 @@ function Header(payload, type) {
   ]);
 }
 
+// costruzione messaggio transazione 
 function messageTX(tx) {
   const bufferTX = Buffer.from(tx, "hex");
   const header = Header(bufferTX, "tx");
   return Buffer.concat([header, bufferTX]);
 }
 
+// costruzione address per version 
 function netAddress(IPv4) {
   const services = littleEndian("1".padStart(16, "0"));
   const ipv6 = "00000000000000000000FFFF";
@@ -328,21 +331,23 @@ function netAddress(IPv4) {
   ]);
 }
 
-function messageVersion() {
-  const versionBTC = littleEndian((70016).toString(16).padStart(8, "0"));
+// costruzione messaggio version
+function messageVersion(node) {
+  const versionBTC = littleEndian((70015).toString(16).padStart(8, "0"));
   const servis = littleEndian("1".padStart(16, "0"));
   const timestramp = Math.floor(Date.now() / 1000)
     .toString(16)
     .padStart(16, "0");
   const timestrampLittleEldian = littleEndian(timestramp);
-  const addr_recv = netAddress("88.198.200.200").toString("hex");
+  const addr_recv = netAddress(node).toString("hex");
+  const addr_from = "0".repeat(52);
 
   // const addr_from = netAddress("192.168.1.8").toString("hex");
   // const addr_recv = "0".repeat(52);
-  const addr_from = "0".repeat(52);
+
   const nonce = Crypto.randomBytes(8).toString("hex");
   const sub_version_num = Buffer.from([0x00]);
-  const heigth = littleEndian((881948).toString(16).padStart(8, "0"));
+  const heigth = littleEndian((0).toString(16).padStart(8, "0"));
 
   console.log("versione " + versionBTC);
   console.log("servis " + servis);
@@ -381,23 +386,34 @@ function broadcast() {
       console.log("errore nel trovare i peers");
       return;
     }
+    const index = Math.floor(Math.random() * peers.length);
+    const node = peers[index];
 
-    const version = messageVersion();
+    const version = messageVersion(node);
     // console.log(version);
 
     const message = messageTX(transection);
     // console.log(message);
 
-    const index = Math.floor(Math.random() * peers.length);
-    console.log(peers[index]);
-    //18333, "69.59.18.23"
-    socket.connect(8333, "88.198.200.200", () => {
+    const verack = Header(Buffer.from("", "hex"), "verack");
+    // console.log(verack);
+
+    socket.connect(8333, node, () => {
       console.log("Connected to node");
       socket.write(version);
     });
 
     socket.on("data", (data) => {
-      console.log(data.toString("hex") + "data ricevuti");
+      const comando = data.slice(4, 16).toString("ascii").replace(/\0/g, "");
+      console.log(data.toString("hex") + " data ricevuti\n" + comando + ' comando ricevuto' );
+
+      if (comando === "version") {
+        console.log("INVIO DI VERACK");
+
+        // Dopo aver ricevuto il messaggio version, invia il verack
+        socket.write(verack);
+      }
+      if (comando == "verack") socket.write(message);
     });
 
     socket.on("end", () => {
@@ -408,6 +424,11 @@ function broadcast() {
       console.log("errore " + err);
     });
   });
+}
+
+broadcast();
+
+/*
 
   // console.log(tx);
 
@@ -424,17 +445,7 @@ function broadcast() {
   //   .catch((err) => {
   //     console.log("errore" + err);
   //   });
-}
-
-function main() {
-  broadcast();
-}
-
-main();
-
-/*
-
-
+  
 
 // https://github.com/bitpay/bitcore-lib/blob/master/docs/examples.md
 
